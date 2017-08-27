@@ -2,7 +2,7 @@
  * sh_gcrypt.h
  *
  *  Created on: Aug 27, 2017
- *      Author: senkel
+ *      Author: dead-end
  */
 
 #ifndef SH_GCRYPT_H_
