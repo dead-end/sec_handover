@@ -13,6 +13,7 @@
 #include <sys/stat.h>
 
 #include <sh_commons.h>
+#include <sh_utils.h>
 
 /***************************************************************************
  * The function prints an array of 'unsigned char' with a block size.
@@ -49,7 +50,7 @@ bool write_array(FILE *file, const unsigned char *array, const size_t array_len)
 		}
 	}
 
-	print_block("write_array()", array, array_len, 16);
+	print_block("write_array()", array, array_len, PRINT_BLOCK_LINE);
 
 	return true;
 }
@@ -89,7 +90,7 @@ bool read_array(FILE *file, unsigned char *array, const size_t array_len) {
 		}
 	}
 
-	print_block("read_array()", array, array_len, 16);
+	print_block("read_array()", array, array_len, PRINT_BLOCK_LINE);
 
 	return true;
 }
