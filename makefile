@@ -37,14 +37,11 @@ OBJECTS  = \
 # Definitions of the build commands.
 ############################################################################
 
-#$(OBJECT_DIR)/sh_keys.o: $(SRC_DIR)/sh_keys.c $(INCLUDES)
-#	$(CC) -c -o $@ $< $(CFLAGS) $(LIBS)
-
 $(OBJECT_DIR)/%.o: $(SRC_DIR)/%.c $(INCLUDES)
 	$(CC) -c -o $@ $< $(CFLAGS) $(LIBS)
 
 $(EXEC): $(OBJECTS)
-	gcc -o $@ $^ $(CFLAGS) $(LIBS)
+	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
 
 all: $(EXEC) $(OBJECTS)
 
