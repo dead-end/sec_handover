@@ -7,12 +7,12 @@
 
 #include <stdbool.h>
 #include <errno.h>
-
 #include <gcrypt.h>
+
 #include <time.h>
 
+#include "sh_generated_keys.h"
 #include "sh_commons.h"
-#include "sh_keys.h"
 
 #define BLOCK_SIZE 16
 

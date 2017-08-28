@@ -21,7 +21,7 @@ LIBS   = -lgcrypt
 EXEC     = sec_handover
 
 INCS = \
-  $(INC_DIR)/sh_keys.h \
+  $(INC_DIR)/sh_generated_keys.h \
   $(INC_DIR)/sh_utils.h \
   $(INC_DIR)/sh_gcrypt.h \
   $(INC_DIR)/sec_handover.h \
@@ -40,7 +40,7 @@ OBJS  = \
 
 GEN_EXEC    = sh_generate_keys
 
-GEN_OBJS = $(OBJ_DIR)/sh_generate_keys.o
+GEN_OBJS    = $(OBJ_DIR)/sh_generate_keys.o
 
 GEN_KEY_SRC = $(SRC_DIR)/sh_generated_keys.c
 
@@ -51,7 +51,7 @@ GEN_KEY_SRC = $(SRC_DIR)/sh_generated_keys.c
 all: $(EXEC) $(OBJS) $(GEN_EXEC) $(GEN_OBJS) $(GEN_SRC)
 	
 $(GEN_KEY_SRC): $(GEN_EXEC)
-	./$(GEN_EXEC)
+	./$(GEN_EXEC) $(GEN_KEY_SRC)
 
 $(GEN_EXEC): $(GEN_OBJS)
 	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
@@ -75,4 +75,4 @@ clean:
 	rm -f $(OBJ_DIR)/*.o
 	rm -f $(SRC_DIR)/*.c~
 	rm -f $(INC_DIR)/*.h~
-	rm -f $(EXEC) $(GEN_EXEC)
+	rm -f $(EXEC) $(GEN_EXEC) $(GEN_KEY_SRC)
