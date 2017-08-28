@@ -8,15 +8,15 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include <errno.h>
 
 #include <gcrypt.h>
-#include <errno.h>
 #include <sys/stat.h>
 
 #define DEBUG
 
 #include "sh_commons.h"
-#include "sh_keys.h"
+#include "sh_generated_keys.h"
 #include "sh_utils.h"
 
 /***************************************************************************
