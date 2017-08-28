@@ -2,17 +2,17 @@
 # Definition of the project directories.
 ############################################################################
 
-INCLUDE_DIR=include
-SRC_DIR=src
-OBJECT_DIR=obj
+INC_DIR = include
+SRC_DIR = src
+OBJ_DIR = obj
 
 ############################################################################
 # Definition of the compiler and its flags.
 ############################################################################
 
-CC=gcc
-CFLAGS=-I$(INCLUDE_DIR) -Wall -Werror -Wpedantic -g
-LIBS=-lgcrypt
+CC     = gcc
+CFLAGS = -I$(INC_DIR) -Wall -Werror -Wpedantic -g
+LIBS   = -lgcrypt
 
 ############################################################################
 # Definition of the project files.
@@ -20,30 +20,47 @@ LIBS=-lgcrypt
 
 EXEC     = sec_handover
 
-INCLUDES = \
-  $(INCLUDE_DIR)/sh_keys.h \
-  $(INCLUDE_DIR)/sh_utils.h \
-  $(INCLUDE_DIR)/sh_gcrypt.h \
-  $(INCLUDE_DIR)/sec_handover.h \
-  $(INCLUDE_DIR)/sh_commons.h
+INCS = \
+  $(INC_DIR)/sh_keys.h \
+  $(INC_DIR)/sh_utils.h \
+  $(INC_DIR)/sh_gcrypt.h \
+  $(INC_DIR)/sec_handover.h \
+  $(INC_DIR)/sh_commons.h
 
-OBJECTS  = \
-  $(OBJECT_DIR)/sh_keys.o \
-  $(OBJECT_DIR)/sh_utils.o \
-  $(OBJECT_DIR)/sh_gcrypt.o \
-  $(OBJECT_DIR)/sec_handover.o
+OBJS  = \
+  $(OBJ_DIR)/sh_generated_keys.o \
+  $(OBJ_DIR)/sh_utils.o \
+  $(OBJ_DIR)/sh_gcrypt.o \
+  $(OBJ_DIR)/sec_handover.o
+
+############################################################################
+# Definitions for the key generation program. The result is a source file 
+# with two keys.
+############################################################################
+
+GEN_EXEC    = sh_generate_keys
+
+GEN_OBJS = $(OBJ_DIR)/sh_generate_keys.o
+
+GEN_KEY_SRC = $(SRC_DIR)/sh_generated_keys.c
 
 ############################################################################
 # Definitions of the build commands.
 ############################################################################
 
-$(OBJECT_DIR)/%.o: $(SRC_DIR)/%.c $(INCLUDES)
-	$(CC) -c -o $@ $< $(CFLAGS) $(LIBS)
+all: $(EXEC) $(OBJS) $(GEN_EXEC) $(GEN_OBJS) $(GEN_SRC)
+	
+$(GEN_KEY_SRC): $(GEN_EXEC)
+	./$(GEN_EXEC)
 
-$(EXEC): $(OBJECTS)
+$(GEN_EXEC): $(GEN_OBJS)
+	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
+	
+$(EXEC): $(OBJS)
 	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
 
-all: $(EXEC) $(OBJECTS)
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c $(INCS)
+	$(CC) -c -o $@ $< $(CFLAGS) $(LIBS)
 
 ############################################################################
 # Definition of the cleanup and run task.
@@ -55,7 +72,7 @@ run:
 	./$(EXEC)
 
 clean:
-	rm -f $(OBJECT_DIR)/*.o
+	rm -f $(OBJ_DIR)/*.o
 	rm -f $(SRC_DIR)/*.c~
-	rm -f $(INCLUDE_DIR)/*.h~
-	rm -f $(EXEC)
+	rm -f $(INC_DIR)/*.h~
+	rm -f $(EXEC) $(GEN_EXEC)
