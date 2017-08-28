@@ -12,8 +12,8 @@
 #include <string.h>
 #include <sys/stat.h>
 
-#include <sh_commons.h>
-#include <sh_utils.h>
+#include "sh_commons.h"
+#include "sh_utils.h"
 
 /***************************************************************************
  * The function prints an array of 'unsigned char' with a block size.
