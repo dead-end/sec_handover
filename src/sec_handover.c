@@ -32,8 +32,8 @@ int main(const int argc, const char *argv[]) {
 	char line[1024];
 	FILE *in = fopen("resources/sec_handover.cfg", "r");
 
-	crypt_ctx ctx = crypt_ctx_encrypt;
-	crypt_file_open(&ctx, "resources/sec_handover.cfg.test2.enc");
+	crypt_ctx ctx = sh_gc_ctx;
+	sh_gc_open_encrypt(&ctx, "resources/sec_handover.cfg.test2.enc");
 
 	print_debug_str("after open\n");
 
@@ -58,12 +58,12 @@ int main(const int argc, const char *argv[]) {
 	// -------------------
 
 
-	crypt_ctx ctx2 = crypt_ctx_decrypt;
-	crypt_file_open(&ctx2, "resources/sec_handover.cfg.test2.enc");
+	crypt_ctx ctx2 = sh_gc_ctx;
+	sh_gc_open_decrypt(&ctx2, "resources/sec_handover.cfg.test2.enc");
 
 	print_debug_str("after open+++++++++\n");
 
-	crypt_file_decrypt_data(&ctx2);
+	sh_gc_decrypt_data(&ctx2);
 
 
 	FILE *out = fopen("resources/sec_handover.cfg.test3", "w+");
