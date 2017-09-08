@@ -12,13 +12,17 @@
 
 void print_block(const char *msg, const unsigned char *block, const int block_size, const int per_line);
 
+void print_buffer(const char *msg, const char *buffer, const int buffer_size);
+
 bool write_array(FILE *file, const unsigned char *array, const size_t array_len);
 
 bool write_array_to(FILE *file, const unsigned char *array, const size_t array_len, const long offset, const int whence);
 
-bool read_array(FILE *file, unsigned char *array, const size_t array_len);
+//bool read_array(FILE *file, unsigned char *array, const size_t array_len);
 
-bool read_array_from(FILE *file, unsigned char *array, const size_t array_len, const long offset, const int whence);
+bool read_array_complete(FILE *file, void *array, const size_t array_len);
+
+bool read_array_complete_from(FILE *file, void *array, const size_t array_len, const long offset, const int whence);
 
 void fclose_silent(FILE *file, const char *file_name);
 
