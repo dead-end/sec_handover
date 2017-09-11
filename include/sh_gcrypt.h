@@ -11,9 +11,9 @@
 #include <stdbool.h>
 #include <gcrypt.h>
 
-bool encrypt_file(char *in_file_name, char *out_file_name);
-
-bool decrypt_file(char *in_file_name, char *out_file_name);
+//bool encrypt_file(char *in_file_name, char *out_file_name);
+//
+//bool decrypt_file(char *in_file_name, char *out_file_name);
 
 typedef struct {
 

@@ -18,45 +18,49 @@ LIBS   = -lgcrypt
 # Definition of the project files.
 ############################################################################
 
-EXEC     = sec_handover
+SH_EXEC     = sec_handover
+SH_SRC      = $(SRC_DIR)/$(SH_EXEC).c
+SH_INC      = $(INC_DIR)/$(SH_EXEC).h
+SH_OBJS     = $(OBJ_DIR)/$(SH_EXEC).o
+
+GEN_EXEC    = sh_generate_keys
+GEN_OBJS    = $(OBJ_DIR)/$(GEN_EXEC).o
+GEN_KEY_SRC = $(SRC_DIR)/sh_generated_keys.c
+
+TEST_EXEC    = sh_test
+TEST_OBJS    = test/$(TEST_EXEC).o
+TEST_SRC     = test/$(TEST_EXEC).c
 
 INCS = \
   $(INC_DIR)/sh_generated_keys.h \
   $(INC_DIR)/sh_utils.h \
   $(INC_DIR)/sh_gcrypt.h \
-  $(INC_DIR)/sec_handover.h \
   $(INC_DIR)/sh_commons.h
 
 OBJS  = \
   $(OBJ_DIR)/sh_generated_keys.o \
   $(OBJ_DIR)/sh_utils.o \
-  $(OBJ_DIR)/sh_gcrypt.o \
-  $(OBJ_DIR)/sec_handover.o
+  $(OBJ_DIR)/sh_gcrypt.o
 
-############################################################################
-# Definitions for the key generation program. The result is a source file 
-# with two keys.
-############################################################################
-
-GEN_EXEC    = sh_generate_keys
-
-GEN_OBJS    = $(OBJ_DIR)/sh_generate_keys.o
-
-GEN_KEY_SRC = $(SRC_DIR)/sh_generated_keys.c
+OBJS_ALL = $(OBJS) $(SH_OBJS) $(GEN_OBJS) $(TEST_OBJS)
+EXEC_ALL =         $(SH_EXEC) $(GEN_EXEC) $(TEST_EXEC)
 
 ############################################################################
 # Definitions of the build commands.
 ############################################################################
 
-all: $(EXEC) $(OBJS) $(GEN_EXEC) $(GEN_OBJS) $(GEN_SRC)
+all: $(EXEC_ALL) $(OBJS_ALL) $(GEN_KEY_SRC)
 	
 $(GEN_KEY_SRC): $(GEN_EXEC)
 	./$(GEN_EXEC) $(GEN_KEY_SRC)
 
 $(GEN_EXEC): $(GEN_OBJS)
 	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
+
+$(TEST_EXEC): $(OBJS) $(TEST_OBJS) 
+	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
 	
-$(EXEC): $(OBJS)
+$(SH_EXEC):   $(OBJS) $(SH_OBJS)
 	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c $(INCS)
@@ -69,10 +73,13 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c $(INCS)
 .PHONY: run clean
 
 run:
-	./$(EXEC)
+	./$(SH_EXEC)
 
+test:
+	./$(SH_TEST)
+	
 clean:
-	rm -f $(OBJ_DIR)/*.o
-	rm -f $(SRC_DIR)/*.c~
-	rm -f $(INC_DIR)/*.h~
-	rm -f $(EXEC) $(GEN_EXEC) $(GEN_KEY_SRC)
+	rm -f */*.o 
+	rm -f */*.c~
+	rm -f */*.h~
+	rm -f $(EXEC_ALL) $(GEN_KEY_SRC)
