@@ -14,11 +14,19 @@
 #include "sh_commons.h"
 #include "sh_utils.h"
 
+void print_buffer(const char *msg, const char *buffer, const int buffer_size) {
+	char tmp_buffer[buffer_size + 1];
+
+	memcpy(tmp_buffer, buffer, buffer_size);
+	tmp_buffer[buffer_size] = '\0';
+
+	printf("print_buffer() %s\n", msg);
+	printf(">>>>%s<<<<\n", tmp_buffer);
+}
+
 /***************************************************************************
  * The function prints an array of 'unsigned char' with a block size.
  **************************************************************************/
-
-//TODO: macro with DEBUG
 
 void print_block(const char *msg, const unsigned char *block, const int block_size, const int per_line) {
 
@@ -32,22 +40,12 @@ void print_block(const char *msg, const unsigned char *block, const int block_si
 	}
 }
 
-void print_buffer(const char *msg, const char *buffer, const int buffer_size) {
-	char tmp_buffer[buffer_size + 1];
-
-	memcpy(tmp_buffer, buffer, buffer_size);
-	tmp_buffer[buffer_size] = '\0';
-
-	printf("print_buffer() %s\n", msg);
-	printf(">>>>%s<<<<\n", tmp_buffer);
-}
-
 /***************************************************************************
  * The method writes an array with a given size to a file. On success true
  * is returned. On failure an error message is print and false is returned.
  **************************************************************************/
 
-bool write_array(FILE *file, const unsigned char *array, const size_t array_len) {
+bool write_array(FILE *file, const void *array, const size_t array_len) {
 
 	const size_t write_len = fwrite(array, 1, array_len, file);
 
@@ -61,7 +59,7 @@ bool write_array(FILE *file, const unsigned char *array, const size_t array_len)
 		}
 	}
 
-	print_block("write_array()", array, array_len, PRINT_BLOCK_LINE);
+	print_debug("write_array() Wrote %zu bytes to the file.\n", array_len);
 
 	return true;
 }
@@ -72,7 +70,7 @@ bool write_array(FILE *file, const unsigned char *array, const size_t array_len)
  * and false is returned.
  **************************************************************************/
 
-bool write_array_to(FILE *file, const unsigned char *array, const size_t array_len, const long offset, const int whence) {
+bool write_array_to(FILE *file, const void *array, const size_t array_len, const long offset, const int whence) {
 
 	if (fseek(file, offset, whence) != 0) {
 		print_error("write_array_to() fseek failed due to: %s\n", strerror(errno));
@@ -86,25 +84,6 @@ bool write_array_to(FILE *file, const unsigned char *array, const size_t array_l
  * The method reads an array with a given size from a file. On success true
  * is returned. On failure an error message is print and false is returned.
  **************************************************************************/
-
-//bool read_array(FILE *file, unsigned char *array, const size_t array_len) {
-//
-//	const size_t read_len = fread(array, 1, array_len, file);
-//
-//	if (read_len != array_len) {
-//		if (ferror(file) != 0) {
-//			print_error("read_array() Unable to read array due to: %s\n", strerror(errno));
-//			return false;
-//		} else {
-//			print_error_str("read_array() Unable to read array!\n");
-//			return false;
-//		}
-//	}
-//
-//	print_block("read_array()", array, array_len, PRINT_BLOCK_LINE);
-//
-//	return true;
-//}
 
 bool read_array_complete(FILE *file, void *array, const size_t array_len) {
 
@@ -120,7 +99,7 @@ bool read_array_complete(FILE *file, void *array, const size_t array_len) {
 		}
 	}
 
-	print_block("read_array_complete()", array, array_len, PRINT_BLOCK_LINE);
+	print_debug("read_array_complete() Read %zu bytes from the file.\n", array_len);
 
 	return true;
 }

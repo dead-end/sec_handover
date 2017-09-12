@@ -14,9 +14,9 @@ void print_block(const char *msg, const unsigned char *block, const int block_si
 
 void print_buffer(const char *msg, const char *buffer, const int buffer_size);
 
-bool write_array(FILE *file, const unsigned char *array, const size_t array_len);
+bool write_array(FILE *file, const void *array, const size_t array_len);
 
-bool write_array_to(FILE *file, const unsigned char *array, const size_t array_len, const long offset, const int whence);
+bool write_array_to(FILE *file, const void *array, const size_t array_len, const long offset, const int whence);
 
 bool read_array_complete(FILE *file, void *array, const size_t array_len);
 

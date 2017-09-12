@@ -243,9 +243,10 @@ static bool check_hmacs_of_a_file(FILE *file) {
 	//
 	if (memcmp(hmac_read, hmac_computed, HMAC_LEN) != 0) {
 
+#ifdef DEBUG
 		print_block("check_hmacs_of_a_file() hmac_read", hmac_read, HMAC_LEN, PRINT_BLOCK_LINE);
 		print_block("check_hmacs_of_a_file() hmac_computed", hmac_computed, HMAC_LEN, PRINT_BLOCK_LINE);
-
+#endif
 		print_error_str("check_hmacs_of_a_file() hmacs do not match!\n");
 		return false;
 	}
@@ -313,8 +314,8 @@ static bool encrypt_and_write_to_file(crypt_ctx *ctx, char *buffer, const size_t
 	//
 	// Write the encrypted buffer to the file.
 	//
-	if (fwrite(buffer, 1, size, ctx->file) != size) {
-		print_error("encrypt_and_write_to_file() Unable to write to file: %s due to: %s\n", ctx->file_name, strerror(errno));
+	if (!write_array(ctx->file, buffer, size)) {
+		print_error("encrypt_and_write_to_file() Unable to write to file: %s.\n", ctx->file_name);
 		return false;
 	}
 
