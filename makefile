@@ -5,6 +5,7 @@
 INC_DIR = include
 SRC_DIR = src
 OBJ_DIR = obj
+BIN_DIR = bin
 
 ############################################################################
 # Definition of the compiler and its flags.
@@ -18,18 +19,18 @@ LIBS   = -lgcrypt
 # Definition of the project files.
 ############################################################################
 
-SH_EXEC     = sec_handover
-SH_SRC      = $(SRC_DIR)/$(SH_EXEC).c
-SH_INC      = $(INC_DIR)/$(SH_EXEC).h
-SH_OBJS     = $(OBJ_DIR)/$(SH_EXEC).o
+SH_EXEC     = $(BIN_DIR)/sec_handover
+SH_SRC      = $(SRC_DIR)/sec_handover.c
+SH_INC      = $(INC_DIR)/sec_handover.h
+SH_OBJS     = $(OBJ_DIR)/sec_handover.o
 
-GEN_EXEC    = sh_generate_keys
-GEN_OBJS    = $(OBJ_DIR)/$(GEN_EXEC).o
+GEN_EXEC    = $(BIN_DIR)/sh_generate_keys
+GEN_OBJS    = $(OBJ_DIR)/sh_generate_keys.o
 GEN_KEY_SRC = $(SRC_DIR)/sh_generated_keys.c
 
-TEST_EXEC    = sh_test
-TEST_OBJS    = test/$(TEST_EXEC).o
-TEST_SRC     = test/$(TEST_EXEC).c
+TEST_EXEC    = $(BIN_DIR)/sh_test
+TEST_OBJS    = $(OBJ_DIR)/sh_test.o
+TEST_SRC     = $(SRC_DIR)/sh_test.c
 
 INCS = \
   $(INC_DIR)/sh_generated_keys.h \
