@@ -68,7 +68,7 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c $(INCS)
 	$(CC) -c -o $@ $< $(CFLAGS) $(LIBS)
 
 ############################################################################
-# Definition of the cleanup and run task.
+# Definition of the cleanup and run task. 
 ############################################################################
 
 .PHONY: run clean
