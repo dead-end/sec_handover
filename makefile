@@ -35,12 +35,14 @@ TEST_SRC     = $(SRC_DIR)/sh_test.c
 INCS = \
   $(INC_DIR)/sh_generated_keys.h \
   $(INC_DIR)/sh_utils.h \
+  $(INC_DIR)/sh_hex.h \
   $(INC_DIR)/sh_gcrypt.h \
   $(INC_DIR)/sh_commons.h
 
 OBJS  = \
   $(OBJ_DIR)/sh_generated_keys.o \
   $(OBJ_DIR)/sh_utils.o \
+  $(OBJ_DIR)/sh_hex.o \
   $(OBJ_DIR)/sh_gcrypt.o
 
 OBJS_ALL = $(OBJS) $(SH_OBJS) $(GEN_OBJS) $(TEST_OBJS)
