@@ -11,6 +11,7 @@
 
 #include "sh_gcrypt.h"
 #include "sh_utils.h"
+#include "sh_hex.h"
 #include "sh_commons.h"
 
 #define TEST_1_SRC "resources/sec_handover.cfg.src"
@@ -23,7 +24,7 @@
  **************************************************************************/
 
 void test1() {
-	char line[1024];
+	char line[MAX_LINE];
 
 	//
 	// encrypt the file
@@ -33,7 +34,7 @@ void test1() {
 	crypt_ctx ctx = sh_gc_ctx;
 	sh_gc_open_encrypt(&ctx, TEST_1_ENC);
 
-	while (fgets(line, 1024, in) != NULL) {
+	while (fgets(line, MAX_LINE, in) != NULL) {
 		sh_gc_write(&ctx, line, strlen(line));
 	}
 
@@ -67,6 +68,37 @@ void test1() {
 }
 
 /***************************************************************************
+ * The function tests the creation of a hex string from a byte array. The
+ * hmac_key is used as an input array.
+ **************************************************************************/
+
+void test2() {
+	unsigned char array[HMAC_LEN];
+	char hex[sh_hex_get_hex_len(HMAC_LEN)];
+
+	//
+	// create a hex string from the key
+	//
+	sh_hex_array_to_hex(hmac_key, HMAC_LEN, hex);
+
+	//
+	// create a byte array from the hex string
+	//
+	if (!sh_hex_hex_to_array(hex, array, HMAC_LEN)) {
+		fprintf(stderr, "Unable to get block from hex string!\n");
+		exit(EXIT_FAILURE);
+	}
+
+	//
+	// compare the initial byte array with the result after the transformations
+	//
+	if (memcmp(hmac_key, array, HMAC_LEN) != 0) {
+		fprintf(stderr, "Initial block and transformed block differ!\n");
+		exit(EXIT_FAILURE);
+	}
+}
+
+/***************************************************************************
  * The main function simply triggers the tests.
  **************************************************************************/
 
@@ -74,6 +106,7 @@ int main(const int argc, const char *argv[]) {
 
 	test1();
 
+	test2();
+
 	return EXIT_SUCCESS;
 }
-
