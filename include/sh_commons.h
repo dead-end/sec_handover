@@ -33,4 +33,6 @@
 //
 #define BUFFER_SIZE 1024
 
+#define MAX_LINE 1024
+
 #endif /* SH_COMMONS_H_ */
