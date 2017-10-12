@@ -57,7 +57,7 @@ bool sh_hex_hex_to_array(const char *hex, unsigned char *array, size_t array_len
 		// set the upper 4 bits
 		//
 		if (!hex_char_to_u_char(*ptr++, &uchar)) {
-			print_error("unsigned_char_from_hex() Invalid hex string: %s (index: %d)\n", hex, i);
+			print_error("sh_hex_hex_to_array() Invalid hex string: %s (index: %d)\n", hex, i);
 			return false;
 		}
 
@@ -67,7 +67,7 @@ bool sh_hex_hex_to_array(const char *hex, unsigned char *array, size_t array_len
 		// set the lower 4 bits
 		//
 		if (!hex_char_to_u_char(*ptr++, &uchar)) {
-			print_error("unsigned_char_from_hex() Invalid hex string: %s (index: %d)\n", hex, i);
+			print_error("sh_hex_hex_to_array() Invalid hex string: %s (index: %d)\n", hex, i);
 			return false;
 		}
 
