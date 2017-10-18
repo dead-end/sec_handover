@@ -28,4 +28,19 @@ bool compare_files(const char *file_name_1, const char *file_name_2);
 
 bool get_file_size(const int fd, size_t *ptr);
 
+
+char **parse_cmd_argv(char *str);
+
+void free_cmd_argv(char **argv);
+
+
+typedef struct {
+	char *ptr;
+	char *result;
+} s_token;
+
+int count_tokens(char* str);
+
+bool next_token(s_token *token);
+
 #endif /* SH_UTILS_H_ */

@@ -8,11 +8,17 @@
 #include <errno.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <ctype.h>
 
 #include "sh_commons.h"
 #include "sh_utils.h"
+
+/***************************************************************************
+ *
+ **************************************************************************/
 
 void print_buffer(const char *msg, const char *buffer, const int buffer_size) {
 	char tmp_buffer[buffer_size + 1];
@@ -33,7 +39,7 @@ void print_block(const char *msg, const unsigned char *block, const int block_si
 	printf("print_block() %s\n", msg);
 
 	for (int i = 0; i < block_size; i++) {
-		printf("%2x ", block[i]);
+		printf("%02x", block[i]);
 		if (i % per_line == per_line - 1) {
 			printf("\n");
 		}
@@ -214,4 +220,208 @@ bool compare_files(const char *file_name_1, const char *file_name_2) {
 	fclose_silent(file_2, file_name_2);
 
 	return result;
+}
+
+/***************************************************************************
+ * The function counts the tokens, delimited by spaces and returns the
+ * result.
+ **************************************************************************/
+
+int count_tokens(char *str) {
+	int count = 0;
+
+	//
+	// we start outside a token
+	//
+	bool inside_word = false;
+
+	for (char *ptr = str; *ptr != '\0'; ptr++) {
+		if (*ptr == ' ') {
+			if (inside_word) {
+				inside_word = false;
+			}
+
+		} else {
+
+			//
+			// we are not inside a token and there is a non space char, so we
+			// have found a new token
+			//
+			if (!inside_word) {
+				inside_word = true;
+				count++;
+			}
+		}
+	}
+
+	print_debug("count_tokens() Found words: %d in: %s\n", count, str);
+
+	return count;
+}
+
+/***************************************************************************
+ * The function is used to parses a line. It returns tokens which are
+ * delimited by spaces. The only parameter is an instance of the struct
+ * s_token, with a pointer to the current search position and a pointer to
+ * the result. If the function does not find a token, the both pointers are
+ * set to NULL. If a token is found it is copied to a newly allocated array
+ * and has to be freed by the caller.
+ *
+ * The function returns false if an error occurs and true otherwise.
+ **************************************************************************/
+
+bool next_token(s_token *token) {
+
+	char *ptr_start;
+	char *ptr_end;
+
+	if (token->ptr == NULL) {
+		token->result = NULL;
+		return true;
+	}
+
+	//
+	// find the start of the current token by skipping spaces
+	//
+	for (ptr_start = token->ptr; *ptr_start == ' '; ptr_start++)
+		;
+
+	//
+	// if there is no token, but only spaces we reach the end of the string
+	//
+	if (*ptr_start == '\0') {
+		token->ptr = NULL;
+		token->result = NULL;
+		return true;
+	}
+
+	//
+	// find the end of the current token, which is a space or the end of
+	// the string
+	//
+	for (ptr_end = ptr_start; *ptr_end != ' ' && *ptr_end != '\0'; ptr_end++)
+		;
+
+	//
+	// allocate memory for the result
+	//
+	const size_t len = ptr_end - ptr_start;
+	token->result = malloc(len + 1);
+
+	if (token->result == NULL) {
+		print_error_str("next_token() Unable to allocate memory!\n");
+		return false;
+	}
+
+	//
+	// copy the result and add a tailing '\0'
+	//
+	memcpy(token->result, ptr_start, len);
+	token->result[len] = '\0';
+
+	print_debug("next_token() str: '%s' result: '%s' next: '%s'\n", token->ptr, token->result, ptr_end);
+
+	//
+	// update the pointer with the end point, which is the start for the
+	// next run
+	//
+	token->ptr = ptr_end;
+
+	return true;
+}
+
+/***************************************************************************
+ * The function frees a argv, which is a NULL terminated array of strings.
+ * It is used as an argument to a execvp call.
+ **************************************************************************/
+
+void free_cmd_argv(char **argv) {
+	char **ptr;
+
+	if (argv == NULL) {
+		return;
+	}
+
+	for (ptr = argv; *ptr != NULL; ptr++) {
+		print_debug("free_cmd_argv() Freeing: %s\n", *ptr);
+		free(*ptr);
+	}
+
+	free(argv);
+}
+
+/***************************************************************************
+ * The function parses a string which is a command. A NULL terminated array
+ * of strings is created with the result an returned.
+ * If an error occurred the method returns NULL.
+ **************************************************************************/
+
+char **parse_cmd_argv(char *str) {
+
+	//
+	// the flag is used to indicate an error, which is used for a cleanup at
+	// the end of the function
+	//
+	bool ok = false;
+
+	//
+	// count the tokens of the string to be able to allocate the array of
+	// pointers to strings
+	//
+	const int words = count_tokens(str);
+
+	if (words < 1) {
+		print_error_str("parse_cmd_argv() Empty command\n");
+		return NULL;
+	}
+
+	char** argv;
+	argv = calloc(sizeof(char *), (words + 1));
+
+	if (argv == NULL) {
+		print_error_str("parse_cmd_argv() Unable to allocate memory!\n");
+		return NULL;
+	}
+	argv[words] = NULL;
+
+	s_token token;
+	token.ptr = str;
+
+	for (int i = 0; i < words; i++) {
+
+		if (!next_token(&token)) {
+			print_error("parse_cmd_argv() Error occurred while getting a token from string %s\n", str);
+			goto CLEANUP;
+		}
+
+		//
+		// a result of NULL means that there is no token, but we counted
+		// the tokens at the beginning.
+		//
+		if (token.result == NULL) {
+			print_error("parse_cmd_argv() Unable to get token from string %s\n", str);
+			goto CLEANUP;
+		}
+
+		print_debug("parse_cmd_argv() Found token: %d '%s'\n", i, token.result);
+
+		argv[i] = token.result;
+	}
+
+	//
+	// at this point all no error can occur
+	//
+	ok = true;
+
+	CLEANUP:
+
+	//
+	// free memory if an error occurs
+	//
+	if (!ok) {
+		free_cmd_argv(argv);
+		return NULL;
+	}
+
+	return argv;
 }
