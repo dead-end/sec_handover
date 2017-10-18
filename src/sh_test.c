@@ -13,6 +13,7 @@
 #include "sh_utils.h"
 #include "sh_hex.h"
 #include "sh_commons.h"
+#include "sec_handover.h"
 
 #define TEST_1_SRC "resources/sec_handover.cfg.src"
 #define TEST_1_ENC "resources/sec_handover.cfg.enc"
@@ -25,6 +26,8 @@
 
 void test1() {
 	char line[MAX_LINE];
+
+	printf("Starting test 1\n");
 
 	//
 	// encrypt the file
@@ -65,6 +68,8 @@ void test1() {
 
 	remove(TEST_1_ENC);
 	remove(TEST_1_DST);
+
+	printf("Finished test 1\n");
 }
 
 /***************************************************************************
@@ -75,6 +80,8 @@ void test1() {
 void test2() {
 	unsigned char array[HMAC_LEN];
 	char hex[sh_hex_get_hex_len(HMAC_LEN)];
+
+	printf("Starting test 2\n");
 
 	//
 	// create a hex string from the key
@@ -96,6 +103,117 @@ void test2() {
 		fprintf(stderr, "Initial block and transformed block differ!\n");
 		exit(EXIT_FAILURE);
 	}
+
+	printf("Finished test 2\n");
+}
+
+/***************************************************************************
+ * The function gets the next token and check if the result has the expected
+ * value.
+ **************************************************************************/
+
+static void check_next_token(s_token *token, const char *expected) {
+
+	next_token(token);
+
+	if (expected != NULL) {
+
+		if (strcmp(token->result, expected) != 0) {
+			fprintf(stderr, "Expected token: %s not found!\n", expected);
+			exit(EXIT_FAILURE);
+		}
+
+		free(token->result);
+
+	} else {
+
+		if (token->ptr != NULL || token->result != NULL) {
+			fprintf(stderr, "Expected NULL!\n");
+			exit(EXIT_FAILURE);
+		}
+	}
+}
+
+/***************************************************************************
+ * The function parses a command string and compares the result with the
+ * expected values.
+ **************************************************************************/
+
+static void check_parse_cmd_argv(char *str, const char *expected[], const int size) {
+
+	char **argv = parse_cmd_argv(str);
+
+	for (int i = 0; i < size; i++) {
+		if (strcmp(argv[i], expected[i]) != 0) {
+			fprintf(stderr, "Expected tokens not found!\n");
+			exit(EXIT_FAILURE);
+		}
+	}
+
+	//
+	// the result array should be NULL terminated
+	//
+	if (argv[size] != NULL) {
+		fprintf(stderr, "Expected tokens not found!\n");
+		exit(EXIT_FAILURE);
+	}
+
+	free_cmd_argv(argv);
+}
+
+/***************************************************************************
+ * The function contains several tests for parsing a string with a command.
+ **************************************************************************/
+
+void test3() {
+	printf("Starting test 3\n");
+
+	//
+	// test count_token function
+	//
+	if (count_tokens(" ZZZZ  ZZZ  ZZ Z  ") != 4) {
+		fprintf(stderr, "Wrong number of words! Expected: 4\n");
+		exit(EXIT_FAILURE);
+	}
+
+	if (count_tokens("Y") != 1) {
+		fprintf(stderr, "Wrong number of words! Expected: 1\n");
+		exit(EXIT_FAILURE);
+	}
+
+	if (count_tokens("") != 0) {
+		fprintf(stderr, "Wrong number of words! Expected: 0\n");
+		exit(EXIT_FAILURE);
+	}
+
+	//
+	// test next_token() function
+	//
+	s_token token;
+
+	token.ptr = "  1111  2222  3333  ";
+	check_next_token(&token, "1111");
+	check_next_token(&token, "2222");
+	check_next_token(&token, "3333");
+	check_next_token(&token, NULL);
+
+	token.ptr = "4";
+	check_next_token(&token, "4");
+	check_next_token(&token, NULL);
+
+	token.ptr = "";
+	check_next_token(&token, NULL);
+
+	//
+	// test function parse_cmd_argv and free_cmd_argv
+	//
+	const char *expected_1[] = { "aaaa", "bb", "-c" };
+	check_parse_cmd_argv("  aaaa  bb -c  ", expected_1, 3);
+
+	const char *expected_2[] = { "d" };
+	check_parse_cmd_argv("d", expected_2, 1);
+
+	printf("Finished test 3\n");
 }
 
 /***************************************************************************
@@ -107,6 +225,8 @@ int main(const int argc, const char *argv[]) {
 	test1();
 
 	test2();
+
+	test3();
 
 	return EXIT_SUCCESS;
 }
