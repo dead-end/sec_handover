@@ -56,4 +56,6 @@ bool sh_gc_readline(crypt_ctx *ctx, char **line);
 
 bool sh_gc_decrypt_data(crypt_ctx *ctx);
 
+bool sh_gc_compute_hmac(const char *filename, unsigned char *hmac);
+
 #endif /* SH_GCRYPT_H_ */
