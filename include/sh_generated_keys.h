@@ -21,6 +21,8 @@
 #define HMAC_KEY_LEN     64
 #define HMAC_LEN         64
 
+#define HMAC_HEX_LEN     2 * HMAC_LEN
+
 extern unsigned char cipher_key[CIPHER_KEY_LEN];
 
 extern unsigned char hmac_key[HMAC_KEY_LEN];
