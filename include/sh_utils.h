@@ -14,6 +14,8 @@ void print_block(const char *msg, const unsigned char *block, const int block_si
 
 void print_buffer(const char *msg, const char *buffer, const int buffer_size);
 
+char *trim(char *str);
+
 bool write_array(FILE *file, const void *array, const size_t array_len);
 
 bool write_array_to(FILE *file, const void *array, const size_t array_len, const long offset, const int whence);
@@ -28,6 +30,7 @@ bool compare_files(const char *file_name_1, const char *file_name_2);
 
 bool get_file_size(const int fd, size_t *ptr);
 
+bool is_path_absolute(const char *path);
 
 char **parse_cmd_argv(char *str);
 
