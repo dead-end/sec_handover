@@ -19,7 +19,7 @@
 /***************************************************************************
  *
  **************************************************************************/
-
+// TODO:
 void print_buffer(const char *msg, const char *buffer, const int buffer_size) {
 	char tmp_buffer[buffer_size + 1];
 
@@ -44,6 +44,31 @@ void print_block(const char *msg, const unsigned char *block, const int block_si
 			printf("\n");
 		}
 	}
+}
+
+/***************************************************************************
+ * The function removes leading and tailing spaces. The process changes the
+ * argument string.
+ **************************************************************************/
+
+char *trim(char *str) {
+	char *ptr;
+
+	//
+	// skip leading white spaces
+	//
+	for (ptr = str; isspace(*ptr); ptr++)
+		;
+
+	//
+	// skip tailing white spaces by overwriting them with '\0'
+	//
+	size_t len = strlen(ptr);
+	for (size_t i = len - 1; i >= 0 && isspace(ptr[i]); i--) {
+		ptr[i] = '\0';
+	}
+
+	return ptr;
 }
 
 /***************************************************************************
@@ -153,6 +178,29 @@ bool get_file_size(const int fd, size_t *ptr) {
 	print_debug("get_file_size() Files has size: %zu\n", sb.st_size);
 
 	*ptr = sb.st_size;
+	return true;
+}
+
+/***************************************************************************
+ * The function test if the path of a file is absolute. It is not ensured
+ * that the file exists.
+ **************************************************************************/
+
+bool is_path_absolute(const char *path) {
+
+	//
+	// path has to start with '/' so the minimum length is 1
+	//
+	if (path == NULL || strlen(path) < 1) {
+		print_error_str("is_path_absolute() Path is NULL or empty!\n");
+		return false;
+	}
+
+	if (path[0] != '/' || strstr(path, "..") != NULL) {
+		print_error("is_path_absolute() Path is not absolute: %s\n", path);
+		return false;
+	}
+
 	return true;
 }
 
