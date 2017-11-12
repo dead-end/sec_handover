@@ -36,7 +36,6 @@ char **parse_cmd_argv(char *str);
 
 void free_cmd_argv(char **argv);
 
-
 typedef struct {
 	char *ptr;
 	char *result;
