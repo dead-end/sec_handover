@@ -45,4 +45,6 @@ int count_tokens(char* str);
 
 bool next_token(s_token *token);
 
+char *str_token(char **ptr, const char c);
+
 #endif /* SH_UTILS_H_ */

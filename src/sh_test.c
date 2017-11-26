@@ -8,6 +8,7 @@
 #include <sh_generated_keys.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "sh_gcrypt.h"
 #include "sh_utils.h"
@@ -217,6 +218,38 @@ void test3() {
 }
 
 /***************************************************************************
+ *
+ **************************************************************************/
+
+void test4() {
+	printf("Starting test 4\n");
+
+	char str1[] = "str0  str1 str2 str3";
+	const char *strs[] = { "str0", "", "str1", "str2", "str3" };
+
+	char *word, *ptr = str1;
+	int count = 0;
+
+
+	while ((word = str_token(&ptr, ' ')) != NULL) {
+
+		if (strcmp(word, strs[count]) != 0) {
+			fprintf(stderr, "Wrong string: %s expected: %s\n", word, strs[count]);
+			exit(EXIT_FAILURE);
+		}
+
+		count++;
+	}
+
+	if (count != 5) {
+		fprintf(stderr, "Wrong count: %d expected: 4\n", count);
+		exit(EXIT_FAILURE);
+	}
+
+	printf("Finished test 4\n");
+}
+
+/***************************************************************************
  * The main function simply triggers the tests.
  **************************************************************************/
 
@@ -227,6 +260,8 @@ int main(const int argc, const char *argv[]) {
 	test2();
 
 	test3();
+
+	test4();
 
 	return EXIT_SUCCESS;
 }

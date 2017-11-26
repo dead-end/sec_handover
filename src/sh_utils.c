@@ -473,3 +473,59 @@ char **parse_cmd_argv(char *str) {
 
 	return argv;
 }
+
+/***************************************************************************
+ * The method is used to split a string with a delimiter char. The string is
+ * modified. The found delimiters are replaced with '\0'. The pointer to the
+ * string is set to the next char after the found delimiter, so the method
+ * can be called until the end of the string is reached.
+ *
+ * char str[] = "test string";
+ * char *word, *ptr = str;
+ * while((word = str_token(&ptr, ' ')) != NULL) {...}
+ **************************************************************************/
+
+char *str_token(char **ptr, const char c) {
+
+	print_debug("str_token() Called with: '%s'\n", *ptr);
+
+	char *result = *ptr;
+
+	//
+	// Check if the function is called with the end of the string. This means
+	// we have processed the whole string and return NULL.
+	//
+	if ((*result) == '\0') {
+		return NULL;
+	}
+
+	while (true) {
+
+		//
+		// We reached the end of the string, but due to the initial '\0' test
+		// above we know that this is the last, not-empty word of the string.
+		//
+		if ((**ptr) == '\0') {
+			break;
+		}
+
+		//
+		// if we found the delimiter we replace it with the terminating \0
+		// and increment the pointer for the next round.
+		//
+		if ((**ptr) == c) {
+			(**ptr) = '\0';
+			(*ptr)++;
+			break;
+		}
+
+		//
+		// next char
+		//
+		(*ptr)++;
+	}
+
+	print_debug("str_token() result: '%s'\n", result);
+
+	return result;
+}
