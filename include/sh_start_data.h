@@ -67,8 +67,10 @@ void sh_start_data_free(s_start_data *start_data);
 
 bool sh_start_data_compute_hashes(s_start_data *start_data);
 
-void sh_start_data_read(const char *filename, s_start_data *start_data, const bool with_hashes);
+bool sh_start_data_read(const char *filename, s_start_data *start_data, const bool with_hashes);
 
-void sh_start_data_write(FILE *out, const s_start_data *start_data);
+bool sh_start_data_write_encr(const char *filename, const s_start_data *start_data);
+
+bool sh_start_data_read_encr(const char *filename, s_start_data *start_data);
 
 #endif /* INCLUDE_SH_START_DATA_H_ */
