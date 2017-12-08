@@ -368,6 +368,8 @@ static void test5() {
 	sh_start_data_free(start_data1);
 	sh_start_data_free(start_data2);
 
+	remove(TEST_2_ENC);
+
 	printf("Finished test 5\n");
 }
 
