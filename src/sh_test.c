@@ -15,17 +15,46 @@
 #include "sh_hex.h"
 #include "sh_commons.h"
 #include "sec_handover.h"
+#include "sh_start_data.h"
 
 #define TEST_1_SRC "resources/sec_handover.cfg.src"
 #define TEST_1_ENC "resources/sec_handover.cfg.enc"
 #define TEST_1_DST "resources/sec_handover.cfg.dst"
+
+#define TEST_2_SRC "resources/start_data.cfg.src"
+#define TEST_2_ENC "resources/start_data.cfg.enc"
+
+/***************************************************************************
+ * The function simply compares two strings. Both strings are not allowed to
+ * be NULL.
+ **************************************************************************/
+
+static void check_str(const char *value1, const char *value2, const char *name) {
+
+	if (value1 == NULL) {
+		fprintf(stderr, "Error - checking: %s value1 is NULL\n", name);
+		exit(EXIT_FAILURE);
+	}
+
+	if (value2 == NULL) {
+		fprintf(stderr, "Error - checking: %s value2 is NULL\n", name);
+		exit(EXIT_FAILURE);
+	}
+
+	if (strcmp(value1, value2) != 0) {
+		fprintf(stderr, "Error - checking: %s value1: %s value2: %s\n", name, value1, value2);
+		exit(EXIT_FAILURE);
+	}
+
+	printf("OK - checking: %s: value: %s\n", name, value1);
+}
 
 /***************************************************************************
  * The first test encrypts and decrypts a file. The result has to be the
  * same.
  **************************************************************************/
 
-void test1() {
+static void test1() {
 	char line[MAX_LINE];
 
 	printf("Starting test 1\n");
@@ -78,7 +107,7 @@ void test1() {
  * hmac_key is used as an input array.
  **************************************************************************/
 
-void test2() {
+static void test2() {
 	unsigned char array[HMAC_LEN];
 	char hex[sh_hex_get_hex_len(HMAC_LEN)];
 
@@ -118,12 +147,7 @@ static void check_next_token(s_token *token, const char *expected) {
 	next_token(token);
 
 	if (expected != NULL) {
-
-		if (strcmp(token->result, expected) != 0) {
-			fprintf(stderr, "Expected token: %s not found!\n", expected);
-			exit(EXIT_FAILURE);
-		}
-
+		check_str(token->result, expected, "token");
 		free(token->result);
 
 	} else {
@@ -145,10 +169,7 @@ static void check_parse_cmd_argv(char *str, const char *expected[], const int si
 	char **argv = parse_cmd_argv(str);
 
 	for (int i = 0; i < size; i++) {
-		if (strcmp(argv[i], expected[i]) != 0) {
-			fprintf(stderr, "Expected tokens not found!\n");
-			exit(EXIT_FAILURE);
-		}
+		check_str(argv[i], expected[i], "token");
 	}
 
 	//
@@ -166,7 +187,7 @@ static void check_parse_cmd_argv(char *str, const char *expected[], const int si
  * The function contains several tests for parsing a string with a command.
  **************************************************************************/
 
-void test3() {
+static void test3() {
 	printf("Starting test 3\n");
 
 	//
@@ -218,35 +239,136 @@ void test3() {
 }
 
 /***************************************************************************
- *
+ * Function check whether the function str_token is able to extract tokens
+ * from an input string, separated by a delimiter character.
  **************************************************************************/
 
-void test4() {
+static void test4() {
 	printf("Starting test 4\n");
 
+	//
+	// The test string and the expected result
+	//
 	char str1[] = "str0  str1 str2 str3";
 	const char *strs[] = { "str0", "", "str1", "str2", "str3" };
 
 	char *word, *ptr = str1;
 	int count = 0;
 
-
 	while ((word = str_token(&ptr, ' ')) != NULL) {
-
-		if (strcmp(word, strs[count]) != 0) {
-			fprintf(stderr, "Wrong string: %s expected: %s\n", word, strs[count]);
-			exit(EXIT_FAILURE);
-		}
-
+		check_str(word, strs[count], "token");
 		count++;
 	}
 
+	//
+	// ensure that all tokens were found
+	//
 	if (count != 5) {
 		fprintf(stderr, "Wrong count: %d expected: 4\n", count);
 		exit(EXIT_FAILURE);
 	}
 
 	printf("Finished test 4\n");
+}
+
+/***************************************************************************
+ * The method reads the unencrypted start data from a file and writes the
+ * data enrypted to an other file. Then the file is decrypted and the start
+ * data extracted. The last step is to compare the inital start data with
+ * the last start data.
+ **************************************************************************/
+
+static void test5() {
+	printf("Starting test 5\n");
+
+	//
+	// read start_data1 from an unencrypted file
+	//
+	s_start_data *start_data1 = sh_start_data_create();
+	if (start_data1 == NULL) {
+		fprintf(stderr, "Unable to allocate memory\n");
+		exit(EXIT_FAILURE);
+	}
+
+	if (!sh_start_data_read(TEST_2_SRC, start_data1, false)) {
+		fprintf(stderr, "Unable to read start data\n");
+		exit(EXIT_FAILURE);
+	}
+
+	//
+	// compute the hashes and write the result to an encrypted file
+	//
+	if (!sh_start_data_compute_hashes(start_data1)) {
+		fprintf(stderr, "Unable to compute hashes\n");
+		exit(EXIT_FAILURE);
+	}
+
+	if (!sh_start_data_write_encr(TEST_2_ENC, start_data1)) {
+		fprintf(stderr, "Unable to encrypt start data\n");
+		exit(EXIT_FAILURE);
+	}
+
+	//
+	// read start_data2 from the encrypted file
+	//
+	s_start_data *start_data2 = sh_start_data_create();
+	if (!sh_start_data_read_encr(TEST_2_ENC, start_data2)) {
+		fprintf(stderr, "Unable to encrypt start data\n");
+		exit(EXIT_FAILURE);
+	}
+
+	//
+	// compare path and password of start_data1 and start_data2
+	//
+	check_str(start_data1->passwd, start_data2->passwd, "passwd");
+	check_str(start_data1->path, start_data2->path, "path");
+
+	//
+	// compare args of start_data1 and start_data2
+	//
+	char **ptr1 = start_data1->argv;
+	char **ptr2 = start_data2->argv;
+
+	for (int i = 0; i < 100; i++) {
+
+		if (ptr1[i] == NULL && ptr2[i] == NULL) {
+			break;
+		}
+
+		check_str(ptr1[i], ptr2[i], "arg");
+	}
+
+	//
+	// compare hash_files of start_data1 and start_data2
+	//
+	s_hash_file *hf_ptr1 = start_data1->hash_files;
+	s_hash_file *hf_ptr2 = start_data2->hash_files;
+
+	while (true) {
+
+		if (hf_ptr1 == NULL && hf_ptr2 == NULL) {
+			break;
+		}
+
+		if (hf_ptr1 == NULL || hf_ptr2 == NULL) {
+			fprintf(stderr, "Hash files are not the same\n");
+			exit(EXIT_FAILURE);
+		}
+
+		check_str(hf_ptr1->filename, hf_ptr2->filename, "filename");
+		check_str(hf_ptr1->hash, hf_ptr2->hash, "hash");
+
+		hf_ptr1 = hf_ptr1->next;
+		hf_ptr2 = hf_ptr2->next;
+	}
+
+	//
+	// cleanup
+	//
+	sh_start_data_free(start_data1);
+	sh_start_data_free(start_data2);
+
+	printf("Finished test 5\n");
 }
 
 /***************************************************************************
@@ -262,6 +384,8 @@ int main(const int argc, const char *argv[]) {
 	test3();
 
 	test4();
+
+	test5();
 
 	return EXIT_SUCCESS;
 }
