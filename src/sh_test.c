@@ -57,7 +57,7 @@ static void check_str(const char *value1, const char *value2, const char *name) 
 static void test1() {
 	char line[MAX_LINE];
 
-	printf("Starting test 1\n");
+	printf("Starting test: 1\n");
 
 	//
 	// encrypt the file
@@ -99,7 +99,7 @@ static void test1() {
 	remove(TEST_1_ENC);
 	remove(TEST_1_DST);
 
-	printf("Finished test 1\n");
+	printf("Finished test: 1\n");
 }
 
 /***************************************************************************
@@ -111,7 +111,7 @@ static void test2() {
 	unsigned char array[HMAC_LEN];
 	char hex[sh_hex_get_hex_len(HMAC_LEN)];
 
-	printf("Starting test 2\n");
+	printf("Starting test: 2\n");
 
 	//
 	// create a hex string from the key
@@ -134,7 +134,7 @@ static void test2() {
 		exit(EXIT_FAILURE);
 	}
 
-	printf("Finished test 2\n");
+	printf("Finished test: 2\n");
 }
 
 /***************************************************************************
@@ -188,7 +188,7 @@ static void check_parse_cmd_argv(char *str, const char *expected[], const int si
  **************************************************************************/
 
 static void test3() {
-	printf("Starting test 3\n");
+	printf("Starting test: 3\n");
 
 	//
 	// test count_token function
@@ -235,7 +235,7 @@ static void test3() {
 	const char *expected_2[] = { "d" };
 	check_parse_cmd_argv("d", expected_2, 1);
 
-	printf("Finished test 3\n");
+	printf("Finished test: 3\n");
 }
 
 /***************************************************************************
@@ -244,7 +244,7 @@ static void test3() {
  **************************************************************************/
 
 static void test4() {
-	printf("Starting test 4\n");
+	printf("Starting test: 4\n");
 
 	//
 	// The test string and the expected result
@@ -268,7 +268,7 @@ static void test4() {
 		exit(EXIT_FAILURE);
 	}
 
-	printf("Finished test 4\n");
+	printf("Finished test: 4\n");
 }
 
 /***************************************************************************
@@ -279,7 +279,7 @@ static void test4() {
  **************************************************************************/
 
 static void test5() {
-	printf("Starting test 5\n");
+	printf("Starting test: 5\n");
 
 	//
 	// read start_data1 from an unencrypted file
@@ -298,7 +298,7 @@ static void test5() {
 	//
 	// compute the hashes and write the result to an encrypted file
 	//
-	if (!sh_start_data_compute_hashes(start_data1)) {
+	if (!sh_start_data_compute_hashes(start_data1, false)) {
 		fprintf(stderr, "Unable to compute hashes\n");
 		exit(EXIT_FAILURE);
 	}
@@ -312,8 +312,21 @@ static void test5() {
 	// read start_data2 from the encrypted file
 	//
 	s_start_data *start_data2 = sh_start_data_create();
+	if (start_data2 == NULL) {
+		fprintf(stderr, "Unable to allocate memory\n");
+		exit(EXIT_FAILURE);
+	}
+
 	if (!sh_start_data_read_encr(TEST_2_ENC, start_data2)) {
 		fprintf(stderr, "Unable to encrypt start data\n");
+		exit(EXIT_FAILURE);
+	}
+
+	//
+	// compute and compare the hashes
+	//
+	if (!sh_start_data_compute_hashes(start_data2, true)) {
+		fprintf(stderr, "Unable to compute hashes\n");
 		exit(EXIT_FAILURE);
 	}
 
@@ -370,7 +383,7 @@ static void test5() {
 
 	remove(TEST_2_ENC);
 
-	printf("Finished test 5\n");
+	printf("Finished test: 5\n");
 }
 
 /***************************************************************************
@@ -378,6 +391,8 @@ static void test5() {
  **************************************************************************/
 
 int main(const int argc, const char *argv[]) {
+
+	printf("Start tests\n");
 
 	test1();
 
@@ -388,6 +403,8 @@ int main(const int argc, const char *argv[]) {
 	test4();
 
 	test5();
+
+	printf("Finished tests!\n");
 
 	return EXIT_SUCCESS;
 }
