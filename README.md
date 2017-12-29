@@ -72,10 +72,12 @@ SHELL Found password: changeit
 The program is currrently bound to linux operating systems, because it uses the system call `ptrace` to avoid debuging.
 It requires the lib `libgcrypt` for encryption (https://www.gnupg.org/related_software/libgcrypt/).
 
+
 ## TODO's
 
 * Allow dynamic arguments on the launch call like `./sec_handover -l /tmp/example.launch arg3 arg4`
 * Consider environment variables.
 * Compute an hmac over the binaries of the `sec_handover` program and store the hmac with the encrypted
 launch file. If the binaries are manipulated do not decrypt the program.
+* Allow a su to a user for the execv call.
 
