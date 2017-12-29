@@ -295,7 +295,7 @@ static bool wait_for_child(const char *id_parent, const pid_t pid_child, const c
  * target program with execv. It creates a pipe form the parent to the child
  * which is used to hand over the password.
  ******************************************************************************/
-//TODO: doku
+
 static bool exec_program(const s_start_data *start_data) {
 	int pipe_fd[2];
 	pid_t pid;
@@ -314,20 +314,21 @@ static bool exec_program(const s_start_data *start_data) {
 	if ((pid = fork()) == -1) {
 		print_error("exec_program() Unable to fork a new process: %s\n", strerror(errno));
 		return false;
-
 	}
 
+	//
+	// process the child
+	//
 	if (pid == 0) {
-		print_debug("#### execv: %d\n", getpid());print_debug_str("PTRACE_TRACEME ################### BEFORE\n");
-		//TODO
-		if (ptrace(PTRACE_TRACEME) == -1) {
-			print_error("PTRACE_TRACEME to: %s\n", strerror(errno));
-			return false;
-		}print_debug_str("PTRACE_TRACEME ################### OK!!\n");
+		print_debug("exec_program() Process: %s pid: %d was successfully forked\n",ID_EXECV , getpid());
 
 		//
-		// process the child
+		// be ready to be traced
 		//
+		if (ptrace(PTRACE_TRACEME) == -1) {
+			print_error("exec_program() Process: %s pid: %d - ptrace failed: %s\n", ID_EXECV, getpid(), strerror(errno));
+			return false;
+		}
 
 		//
 		// The child reads the password from the pipe and continue writing to stdout.
@@ -365,17 +366,14 @@ static bool exec_program(const s_start_data *start_data) {
 		//
 		// if the execution of the program was sucessfull, this code will not be reached
 		//
-		print_error("exec_program() Execution of program: %s failed\n", start_data->path);
+		print_error("exec_program() Process: %s pid: %d - execution of program: %s failed\n", ID_EXECV, getpid(), start_data->path);
 		return false;
 
-	} else {
 		//
 		// process the parent
 		//
-
-		print_debug("#### pwd handover: %d\n", getpid());
-
-		//	int status;
+	} else {
+		print_debug("exec_program() Process: %s pid: %d successfully forked child: %s pid: %d\n",ID_HAND_OVER , getpid(), ID_EXECV, pid);
 
 		//
 		// the parent writes the password to the pipe, so stdin is useless
@@ -393,21 +391,6 @@ static bool exec_program(const s_start_data *start_data) {
 			print_error("exec_program() Unable to open the pipe: %s\n", strerror(errno));
 			return false;
 		}
-
-//TODO
-//		if (ptrace(PTRACE_ATTACH, pid) == -1) {
-//			print_error("main() Calling ptrace() ##########with PTRACE_ATTACH failed: %s\n", strerror(errno));
-//
-//			//
-//			// if ptrace failed kill the child process
-//			//
-//			if (kill(pid, SIGKILL) == -1) {
-//				print_error("main() Killing child failed: %s\n", strerror(errno));
-//			}
-//
-//			exit(EXIT_FAILURE);
-//		}
-//		print_debug("Successfully attached: %d id: %s\n", pid, "exec_program");
 
 		//
 		// write the password
@@ -427,13 +410,15 @@ static bool exec_program(const s_start_data *start_data) {
 
 		print_debug_str("exec_program() Password handed over!\n");
 
-//		//TODO: status and 0
-//		if (waitpid(pid, &status, 0) == -1) {
-//			print_error("exec_program() Unable to wait for the child: %s\n", strerror(errno));
-//			return false;
-//		}
+		//
+		// wait for the child to exit
+		//
+		if (!wait_for_child(ID_HAND_OVER, pid, ID_EXECV)) {
+			print_error("main() Unable to wait for child: %d\n", pid);
+			return EXIT_FAILURE;
+		}
 
-		wait_for_child(ID_HAND_OVER, pid, ID_EXECV);
+		print_debug("main() Process: %s pid: %d finished!\n",ID_HAND_OVER , getpid());
 	}
 
 	return true;
@@ -540,9 +525,9 @@ static void print_usage(const bool has_error, const char* msg) {
 }
 
 /***************************************************************************
- *
+ * The function parses the program args.
  **************************************************************************/
-//todo
+
 static bool process_args(const int argc, char * const argv[], s_arguments *arguments) {
 
 	int index;
@@ -550,49 +535,63 @@ static bool process_args(const int argc, char * const argv[], s_arguments *argum
 
 	while ((c = getopt(argc, argv, "s:l:o:n")) != -1) {
 		switch (c) {
+
 		case 's':
 			arguments->sign_file = optarg;
+			print_debug("process_args() Found sign file: %s\n", arguments->sign_file);
 			break;
+
 		case 'l':
 			arguments->launch_file = optarg;
+			print_debug("process_args() Found launch file: %s\n", arguments->launch_file);
 			break;
+
 		case 'o':
 			arguments->out_file = optarg;
+			print_debug("process_args() Found out file: %s\n", arguments->out_file);
 			break;
+
 		case 'n':
 			arguments->interactive_passwd = false;
 			break;
+
 		default:
 			print_usage(true, NULL);
 		}
 	}
 
+	//
+	// The program has a sign and a launch mode, so one of the corresponding
+	// files have to be set.
+	//
 	if (arguments->sign_file != NULL && arguments->launch_file != NULL) {
 		print_usage(true, "Sign or launch");
 	}
 
+	//
+	// Not both of the corresponding files have to be set.
+	//
 	if (arguments->sign_file == NULL && arguments->launch_file == NULL) {
 		print_usage(true, "Please select '-s FILE' to sign or '-l FILE' to launch the file!");
 	}
 
+	//
+	// On sign mode, an output file has to be set.
+	//
 	if (arguments->sign_file != NULL && arguments->out_file == NULL) {
 		print_usage(true, "out missing");
 	}
 
-	//TODO print ordentlich
-	print_debug("sign file: %s\n", arguments->sign_file);
+	print_debug("process_args() Interactive password: %s\n", arguments->interactive_passwd ? "true" : "false");
 
-	print_debug("launch file: %s\n", arguments->launch_file);
-
-	print_debug("out file: %s\n", arguments->out_file);
-
-	print_debug("password: %s\n", arguments->interactive_passwd ? "true" : "false");
-
+	//
+	// non option arguments are currently ignored
+	//
 	for (index = optind; index < argc; index++) {
-		// TODO
-		printf("Non-option argument %s\n", argv[index]);
+		print_debug("process_args() Found non-option argument %s\n", argv[index]);
 	}
-	return 0;
+
+	return true;
 }
 
 /***************************************************************************
@@ -631,32 +630,6 @@ static bool deferred_main(const int argc, char * const argv[]) {
 	}
 
 	return true;
-}
-
-void path() {
-	// "readlink / proc / self / exe"
-
-
-	char path[BUFFER_SIZE + 1];
-	ssize_t len;
-
-	len = readlink("/proc/self/exe", path, BUFFER_SIZE);
-
-	if (len == -1) {
-		perror("readlink");
-		exit(EXIT_FAILURE);
-	}
-
-	if (len > BUFFER_SIZE) {
-		fprintf(stderr, "symlink increased in size "
-				"between lstat() and readlink()\n");
-		exit(EXIT_FAILURE);
-	}
-
-	path[len] = '\0';
-
-	print_debug("path '%s'\n", path);
-
 }
 
 /***************************************************************************
@@ -703,7 +676,7 @@ int main(const int argc, char * const argv[]) {
 		// be ready to be traced
 		//
 		if (ptrace(PTRACE_TRACEME) == -1) {
-			print_error("PTRACE_TRACEME to: %s\n", strerror(errno));
+			print_error("main() Process: %s pid: %d - ptrace failed: %s\n", ID_HAND_OVER, getpid(), strerror(errno));
 			return EXIT_FAILURE;
 		}
 
