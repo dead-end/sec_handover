@@ -74,7 +74,7 @@ static void test1() {
 	sh_gc_finish_write(&ctx);
 	sh_gc_close(&ctx);
 
-	fclose(in);
+	fclose_silent(in, TEST_1_SRC);
 
 	//
 	// decrypt the file
@@ -84,7 +84,7 @@ static void test1() {
 
 	FILE *out = fopen(TEST_1_DST, "w+");
 	fprintf(out, "%s", ctx.buffer);
-	fclose(out);
+	fclose_silent(out, TEST_1_DST);
 
 	sh_gc_close(&ctx);
 
