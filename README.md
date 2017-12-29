@@ -3,12 +3,13 @@
 ## Description
 
 sec_handover is a program that tries to handover a password to a program in a secure way.
+This is best explained with an example.
 
 ## Example
 
-Assume you have the shell script `/tmp/example.sh`, that requires a password and is 
-called with two parameters `arg1` and `arg2`. The password can be read from stdin like 
-the following example:
+Assume you have the shell script `/tmp/example.sh`, that requires a password and you
+do not what the store the password unencrypted in the filesystem.
+The password can be read from stdin like the following example:
 
 ```shell
 #!/bin/bash
@@ -23,18 +24,15 @@ echo "SHELL Found password: $password"
 exit 0
 ```
 You can create a configuration file called `/tmp/example.sign`, which contains the 
-command, including the args and a list of files, which the command is based of. All files
-have to be given with absolut paths.
+command, including the args (in this case `arg1` and `arg2`)and a list of files, which 
+the command is based of. All files have to be given with absolut paths.
 
 ```
 [cmd]   
-
 /bin/bash /tmp/example.sh arg1 arg2
-     
+
 [hash]
-
 /bin/bash
-
 /tmp/example.sh
 ```
 Now you can sign the file `/tmp/example.sign` with the following command. At this point 
@@ -69,9 +67,15 @@ SHELL Called with: arg1 arg2
 SHELL Found password: changeit
 ```
 
+## Installation
+
+The program is currrently bound to linux operating systems, because it uses the system call `ptrace` to avoid debuging.
+It requires the lib `libgcrypt` for encryption (https://www.gnupg.org/related_software/libgcrypt/).
+
 ## TODO's
 
 * Allow dynamic arguments on the launch call like `./sec_handover -l /tmp/example.launch arg3 arg4`
+* Consider environment variables.
 * Compute an hmac over the binaries of the `sec_handover` program and store the hmac with the encrypted
 launch file. If the binaries are manipulated do not decrypt the program.
 
