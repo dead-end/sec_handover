@@ -12,7 +12,8 @@ BIN_DIR = bin
 ############################################################################
 
 CC     = gcc
-CFLAGS = -I$(INC_DIR) -Wall -Werror -Wpedantic -g
+#DEBUG  = -DDEBUG -g
+CFLAGS = -I$(INC_DIR) -Wall -Werror -Wpedantic $(DEBUG)
 LIBS   = -lgcrypt
 
 ############################################################################
@@ -32,21 +33,27 @@ TEST_EXEC    = $(BIN_DIR)/sh_test
 TEST_OBJS    = $(OBJ_DIR)/sh_test.o
 TEST_SRC     = $(SRC_DIR)/sh_test.c
 
+TRACER_EXEC    = $(BIN_DIR)/sh_tracer
+TRACER_OBJS    = $(OBJ_DIR)/sh_tracer.o
+TRACER_SRC     = $(SRC_DIR)/sh_tracer.c
+
 INCS = \
   $(INC_DIR)/sh_generated_keys.h \
   $(INC_DIR)/sh_utils.h \
   $(INC_DIR)/sh_hex.h \
   $(INC_DIR)/sh_gcrypt.h \
-  $(INC_DIR)/sh_commons.h
+  $(INC_DIR)/sh_commons.h \
+  $(INC_DIR)/sh_start_data.h
 
 OBJS  = \
   $(OBJ_DIR)/sh_generated_keys.o \
   $(OBJ_DIR)/sh_utils.o \
   $(OBJ_DIR)/sh_hex.o \
-  $(OBJ_DIR)/sh_gcrypt.o
+  $(OBJ_DIR)/sh_gcrypt.o \
+  $(OBJ_DIR)/sh_start_data.o
 
-OBJS_ALL = $(OBJS) $(SH_OBJS) $(GEN_OBJS) $(TEST_OBJS)
-EXEC_ALL =         $(SH_EXEC) $(GEN_EXEC) $(TEST_EXEC)
+OBJS_ALL = $(OBJS) $(SH_OBJS) $(GEN_OBJS) $(TEST_OBJS) $(TRACER_OBJS)
+EXEC_ALL =         $(SH_EXEC) $(GEN_EXEC) $(TEST_EXEC) $(TRACER_EXEC)
 
 ############################################################################
 # Definitions of the build commands.
@@ -61,6 +68,9 @@ $(GEN_EXEC): $(GEN_OBJS)
 	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
 
 $(TEST_EXEC): $(OBJS) $(TEST_OBJS) 
+	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
+
+$(TRACER_EXEC): $(OBJS) $(TRACER_OBJS) 
 	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
 	
 $(SH_EXEC):   $(OBJS) $(SH_OBJS)
