@@ -8,8 +8,6 @@
 #ifndef SH_COMMONS_H_
 #define SH_COMMONS_H_
 
-#define DEBUG
-
 //
 // definition of the print_debug macro.
 //
@@ -32,6 +30,8 @@
 // default buffer size
 //
 #define BUFFER_SIZE 1024
+
+#define SMALL_BUFFER_SIZE 256
 
 #define MAX_LINE 1024
 
