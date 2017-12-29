@@ -586,21 +586,6 @@ bool sh_start_data_write_encr(const char *file_name, const s_start_data *start_d
 	}
 
 	//
-	// password
-	//
-	snprintf(line, MAX_LINE, "%s\n", TAG_PWD);
-	if (!sh_gc_write(&ctx, line, strlen(line))) {
-		print_error("sh_start_data_write_encr() Unable to encrypt line: %s\n", line);
-		goto CLEANUP;
-	}
-
-	snprintf(line, MAX_LINE, "%s\n", start_data->passwd);
-	if (!sh_gc_write(&ctx, line, strlen(line))) {
-		print_error_str("sh_start_data_write_encr() Unable to encrypt line with password\n");
-		goto CLEANUP;
-	}
-
-	//
 	// hash files
 	//
 	snprintf(line, MAX_LINE, "%s\n", TAG_HASH);
@@ -624,6 +609,21 @@ bool sh_start_data_write_encr(const char *file_name, const s_start_data *start_d
 			print_error("sh_start_data_write_encr() Unable to encrypt line: %s\n", line);
 			goto CLEANUP;
 		}
+	}
+
+	//
+	// password
+	//
+	snprintf(line, MAX_LINE, "%s\n", TAG_PWD);
+	if (!sh_gc_write(&ctx, line, strlen(line))) {
+		print_error("sh_start_data_write_encr() Unable to encrypt line: %s\n", line);
+		goto CLEANUP;
+	}
+
+	snprintf(line, MAX_LINE, "%s\n", start_data->passwd);
+	if (!sh_gc_write(&ctx, line, strlen(line))) {
+		print_error_str("sh_start_data_write_encr() Unable to encrypt line with password\n");
+		goto CLEANUP;
 	}
 
 	//
