@@ -646,8 +646,6 @@ static bool deferred_main(const int argc, char * const argv[]) {
 int main(const int argc, char * const argv[]) {
 	pid_t pid;
 
-	path();
-
 	print_debug_str("Start!\n");
 
 	//
