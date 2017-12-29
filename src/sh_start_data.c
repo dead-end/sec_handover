@@ -75,6 +75,14 @@ void sh_start_data_free(s_start_data *start_data) {
 	print_debug_str("sh_start_data_free()\n");
 
 	//
+	// ensure that the function in NULL save. This is important if the
+	// allocation of the start data fails.
+	//
+	if (start_data == NULL) {
+		print_debug_str("sh_start_data_free() Start data is NULL, so there is nothing to do!\n");
+	}
+
+	//
 	// free of path is not necessary since:
 	// start_data->path = start_data->argv[0]
 	//
@@ -466,7 +474,7 @@ bool sh_start_data_read(const char *filename, s_start_data *start_data, const bo
 	//
 	CLEANUP:
 
-	fclose(file);
+	fclose_silent(file, filename);
 
 	return result;
 }
@@ -640,24 +648,19 @@ bool sh_start_data_write_encr(const char *file_name, const s_start_data *start_d
 
 /***************************************************************************
  * The function computes the hash values for all files in the linked list.
+ * If the flag 'compare' is set, the computed hashes are compared with the
+ * configured hashes to see if a file has change, which is a security risc.
  **************************************************************************/
 
-bool sh_start_data_compute_hashes(s_start_data *start_data) {
+bool sh_start_data_compute_hashes(s_start_data *start_data, const bool compare) {
 
 	unsigned char hmac[HMAC_LEN];
+	char hash[sh_hex_get_hex_len(HMAC_LEN)];
 
 	//
 	// loop over the linked list of hash files
 	//
 	for (s_hash_file *hash_file = start_data->hash_files; hash_file != NULL; hash_file = hash_file->next) {
-
-		//
-		// ensure that the file does not already has a hash
-		//
-		if (hash_file->hash != NULL) {
-			print_error("sh_start_data_compute_hashes() File: %s already has a hash: %s\n", hash_file->filename, hash_file->hash);
-			return false;
-		}
 
 		//
 		// compute the hash (bin) for the file
@@ -667,18 +670,51 @@ bool sh_start_data_compute_hashes(s_start_data *start_data) {
 			return false;
 		}
 
-		//
-		// allocate memory for the hash (hex) and write the hash as a hex string
-		//
-		hash_file->hash = malloc(sh_hex_get_hex_len(HMAC_LEN));
-		if (hash_file->hash == NULL) {
-			print_error_str("sh_start_data_compute_hashes() Unable to allocate memory\n");
-			return false;
+		sh_hex_array_to_hex(hmac, HMAC_LEN, hash);
+
+		if (compare) {
+
+			//
+			// ensure the hash_file structure has a hash to compare
+			//
+			if (hash_file->hash == NULL) {
+				print_error("sh_start_data_compute_hashes() File: %s has no hash!\n", hash_file->filename);
+				return false;
+			}
+
+			//
+			// compare the hashes
+			//
+			if (strcmp(hash, hash_file->hash) != 0) {
+				print_error("sh_start_data_compute_hashes() Hashes differ for file: %s\n", hash_file->filename);
+				print_error("sh_start_data_compute_hashes() Configured: %s\n", hash_file->hash);
+				print_error("sh_start_data_compute_hashes() Current:    %s\n", hash);
+				return false;
+			}
+
+			print_debug_str("sh_start_data_compute_hashes() Hashes are equal!\n");
+
+		} else {
+
+			//
+			// ensure the hash_file structure has not a hash that would be overwritten
+			//
+			if (hash_file->hash != NULL) {
+				print_error("sh_start_data_compute_hashes() File: %s already has a hash: %s\n", hash_file->filename, hash_file->hash);
+				return false;
+			}
+
+			//
+			// allocate memory for the hash (hex) and write the hash as a hex string
+			//
+			hash_file->hash = strdup(hash);
+			if (hash_file->hash == NULL) {
+				print_error_str("sh_start_data_compute_hashes() Unable to allocate memory\n");
+				return false;
+			}
 		}
 
-		sh_hex_array_to_hex(hmac, HMAC_LEN, hash_file->hash);
-
-		print_debug("sh_start_data_compute_hashes() hex: %s file: %s\n", hash_file->hash, hash_file->filename);
+		print_debug("sh_start_data_compute_hashes() hex: %s file: %s\n", hash, hash_file->filename);
 	}
 
 	return true;
