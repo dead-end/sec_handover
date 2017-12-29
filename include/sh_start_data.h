@@ -65,7 +65,7 @@ typedef struct {
 
 void sh_start_data_free(s_start_data *start_data);
 
-bool sh_start_data_compute_hashes(s_start_data *start_data);
+bool sh_start_data_compute_hashes(s_start_data *start_data, const bool compare);
 
 bool sh_start_data_read(const char *filename, s_start_data *start_data, const bool with_hashes);
 
