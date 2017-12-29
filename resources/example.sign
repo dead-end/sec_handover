@@ -1,0 +1,9 @@
+[cmd]   
+
+/bin/bash /tmp/example.sh arg1 arg2
+     
+[hash]
+
+/bin/bash
+
+/tmp/example.sh
