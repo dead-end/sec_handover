@@ -20,7 +20,6 @@ read -sp "SHELL Password: " password
 sleep 10
 
 echo "SHELL Found password: $password"
-
 exit 0
 ```
 You can create a configuration file called `/tmp/example.sign`, which contains the 
@@ -71,7 +70,14 @@ SHELL Found password: changeit
 
 The program is currrently bound to linux operating systems, because it uses the system call `ptrace` to avoid debuging.
 It requires the lib `libgcrypt` for encryption (https://www.gnupg.org/related_software/libgcrypt/).
+To build the program simply call:
 
+```
+make
+make secure
+```
+The first call builds the program. During the build process an AES key is created and compiled into the program. The 
+source files of the key are removed in the second step.
 
 ## TODO's
 
