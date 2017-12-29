@@ -47,4 +47,6 @@ bool next_token(s_token *token);
 
 char *str_token(char **ptr, const char c);
 
+bool get_program_path(char *buffer, const size_t size);
+
 #endif /* SH_UTILS_H_ */

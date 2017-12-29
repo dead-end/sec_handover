@@ -12,6 +12,7 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <ctype.h>
+#include <unistd.h>
 
 #include "sh_commons.h"
 #include "sh_utils.h"
@@ -537,4 +538,32 @@ char *str_token(char **ptr, const char c) {
 	print_debug("str_token() result: '%s'\n", result);
 
 	return result;
+}
+
+/***************************************************************************
+ * The function reads the program path from the proc file system. The path
+ * can be used to see if the binaries are manipulated.
+ **************************************************************************/
+
+bool get_program_path(char *buffer, const size_t size) {
+
+	const ssize_t len = readlink("/proc/self/exe", buffer, size - 1);
+
+	if (len == -1) {
+		print_error("get_program_path() Reading '/proc/self/exe' failed: %s\n", strerror(errno));
+		return false;
+	}
+
+	if (len > size - 1) {
+		print_error("get_program_path() Buffer to small: %zu required: %zu\n", size, len);
+		return false;
+	}
+
+	//
+	// the readlink function does not set the string terminating \0
+	//
+	buffer[len] = '\0';
+	print_debug("path '%s'\n", buffer);
+
+	return true;
 }

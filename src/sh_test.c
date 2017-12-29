@@ -391,8 +391,10 @@ static void test5() {
  **************************************************************************/
 
 int main(const int argc, const char *argv[]) {
+	char path[BUFFER_SIZE];
+	get_program_path(path, BUFFER_SIZE);
 
-	printf("Start tests\n");
+	printf("Start tests of: %s\n", path);
 
 	test1();
 
