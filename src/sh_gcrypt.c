@@ -17,8 +17,6 @@
 #include <gcrypt.h>
 #include <sys/stat.h>
 
-#define DEBUG
-
 #include "sh_commons.h"
 #include "sh_generated_keys.h"
 #include "sh_utils.h"
@@ -135,7 +133,9 @@ static bool compute_hmac_over_file(FILE *file, unsigned char *hmac) {
 	while (!end) {
 		read_bytes = fread(buffer, 1, BUFFER_SIZE, file);
 
-		print_debug("compute_hmac_over_file() Read bytes: %zu\n", read_bytes);
+		//
+		// print_debug("compute_hmac_over_file() Read bytes: %zu\n", read_bytes);
+		//
 
 		//
 		// If read bytes are less than expected there is the eof or an error.
@@ -225,7 +225,7 @@ bool sh_gc_compute_hmac(const char *filename, unsigned char *hmac) {
 	//
 	CLEANUP:
 
-	fclose(file);
+	fclose_silent(file, filename);
 
 	return result;
 }
