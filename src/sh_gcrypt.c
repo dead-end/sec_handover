@@ -272,8 +272,8 @@ static bool check_hmacs_of_a_file(FILE *file) {
 	if (memcmp(hmac_read, hmac_computed, HMAC_LEN) != 0) {
 
 #ifdef DEBUG
-		print_block("check_hmacs_of_a_file() hmac_read", hmac_read, HMAC_LEN, PRINT_BLOCK_LINE);
-		print_block("check_hmacs_of_a_file() hmac_computed", hmac_computed, HMAC_LEN, PRINT_BLOCK_LINE);
+		debug_print_block("check_hmacs_of_a_file() hmac_read", hmac_read, HMAC_LEN, PRINT_BLOCK_LINE);
+		debug_print_block("check_hmacs_of_a_file() hmac_computed", hmac_computed, HMAC_LEN, PRINT_BLOCK_LINE);
 #endif
 		print_error_str("check_hmacs_of_a_file() hmacs do not match!\n");
 		return false;
@@ -328,7 +328,9 @@ static bool write_hmac_to_file(crypt_ctx *ctx) {
 static bool encrypt_and_write_to_file(crypt_ctx *ctx, char *buffer, const size_t size) {
 	gcry_error_t error;
 
-	print_buffer("encrypt_and_write_to_file()", buffer, size);
+#ifdef DEBUG
+	debug_print_buffer("encrypt_and_write_to_file()", buffer, size);
+#endif
 
 	//
 	// Encrypt the buffer in place.

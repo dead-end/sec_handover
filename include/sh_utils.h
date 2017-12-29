@@ -10,9 +10,9 @@
 
 #define PRINT_BLOCK_LINE 16
 
-void print_block(const char *msg, const unsigned char *block, const int block_size, const int per_line);
+void debug_print_block(const char *msg, const unsigned char *block, const int block_size, const int per_line);
 
-void print_buffer(const char *msg, const char *buffer, const int buffer_size);
+void debug_print_buffer(const char *msg, const char *buffer, const int buffer_size);
 
 char *trim(char *str);
 

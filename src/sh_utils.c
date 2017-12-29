@@ -16,27 +16,34 @@
 #include "sh_commons.h"
 #include "sh_utils.h"
 
+#ifdef DEBUG
+
 /***************************************************************************
- *
+ * The method prints a buffer with a give size. The buffer can end with
+ * padding chars, which are not necessary printable.
  **************************************************************************/
-// TODO:
-void print_buffer(const char *msg, const char *buffer, const int buffer_size) {
+
+void debug_print_buffer(const char *msg, const char *buffer, const int buffer_size) {
 	char tmp_buffer[buffer_size + 1];
 
 	memcpy(tmp_buffer, buffer, buffer_size);
 	tmp_buffer[buffer_size] = '\0';
 
-	printf("print_buffer() %s\n", msg);
-	printf(">>>>%s<<<<\n", tmp_buffer);
+	for (int i = buffer_size - 1; !isprint(tmp_buffer[i]); i++) {
+		tmp_buffer[buffer_size] = '\0';
+	}
+
+	printf("debug_print_buffer() %s\n", msg);
+	printf(">>>> START >>>>\n%s\n<<<< END <<<<\n", tmp_buffer);
 }
 
 /***************************************************************************
  * The function prints an array of 'unsigned char' with a block size.
  **************************************************************************/
 
-void print_block(const char *msg, const unsigned char *block, const int block_size, const int per_line) {
+void debug_print_block(const char *msg, const unsigned char *block, const int block_size, const int per_line) {
 
-	printf("print_block() %s\n", msg);
+	printf("debug_print_block() %s\n", msg);
 
 	for (int i = 0; i < block_size; i++) {
 		printf("%02x", block[i]);
@@ -45,6 +52,8 @@ void print_block(const char *msg, const unsigned char *block, const int block_si
 		}
 	}
 }
+
+#endif
 
 /***************************************************************************
  * The function removes leading and tailing spaces. The process changes the
