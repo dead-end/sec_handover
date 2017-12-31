@@ -83,7 +83,5 @@ source files of the key are removed in the second step.
 
 * Allow dynamic arguments on the launch call like `./sec_handover -l /tmp/example.launch arg3 arg4`
 * Consider environment variables.
-* Compute an hmac over the binaries of the `sec_handover` program and store the hmac with the encrypted
-launch file. If the binaries are manipulated do not decrypt the program.
-* Allow a su to a user for the execv call.
+* Allow a switch user to a user for the execv call.
 
