@@ -13,6 +13,8 @@
 #include <sys/stat.h>
 #include <ctype.h>
 #include <unistd.h>
+#include <sys/types.h>
+#include <pwd.h>
 
 #include "sh_commons.h"
 #include "sh_utils.h"
@@ -564,6 +566,35 @@ bool get_program_path(char *buffer, const size_t size) {
 	//
 	buffer[len] = '\0';
 	print_debug("path '%s'\n", buffer);
+
+	return true;
+}
+
+/***************************************************************************
+ * The function returns a uid for a user represented by its name.
+ **************************************************************************/
+
+bool get_userid_from_name(const char *name, uid_t *uid) {
+	struct passwd pwd;
+	struct passwd *result;
+	char buffer[BUFFER_SIZE];
+
+	const int err_no = getpwnam_r(name, &pwd, buffer, BUFFER_SIZE, &result);
+
+	//
+	// if the result is NULL something is wrong
+	//
+	if (result == NULL) {
+		if (err_no == 0)
+			print_error("get_userid_from_name() User id for name: %s not found!\n", name);
+		else {
+			print_error("get_userid_from_name() Getting name: %s failed: %s\n", name, strerror(err_no));
+		}
+		return false;
+	}
+
+	*uid = pwd.pw_uid;
+	print_debug("get_userid_from_name() Name: %s uid: %ld\n", name, (long) *uid);
 
 	return true;
 }

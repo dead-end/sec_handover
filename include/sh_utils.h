@@ -49,4 +49,6 @@ char *str_token(char **ptr, const char c);
 
 bool get_program_path(char *buffer, const size_t size);
 
+bool get_userid_from_name(const char *name, uid_t *uid);
+
 #endif /* SH_UTILS_H_ */
