@@ -82,6 +82,40 @@ static bool avoid_coredumps() {
 }
 
 /***************************************************************************
+ * The function computes a hmac over the binaries of this program. With the
+ * hmac the cipher key and the hmac keys are XOR-ed. If the binaries are
+ * manipulated, the config file cannot be decrypted.
+ **************************************************************************/
+
+static bool init_keys() {
+	char filename[BUFFER_SIZE];
+	unsigned char hmac[HMAC_LEN];
+
+	if (!get_program_path(filename, BUFFER_SIZE)) {
+		print_error_str("init_keys() Unable to get program path\n");
+		return false;
+	}
+
+	//
+	// compute the hash (bin) for the file
+	//
+	if (!sh_gc_compute_hmac(filename, hmac)) {
+		print_error("init_keys() Unable to compute hmac over file: %s\n", filename);
+		return false;
+	}
+
+	for (int i = 0; i < CIPHER_KEY_LEN; i++) {
+		cipher_key[i] ^= hmac[i % HMAC_LEN];
+	}
+
+	for (int i = 0; i < HMAC_KEY_LEN; i++) {
+		hmac_key[i] ^= hmac[i % HMAC_LEN];
+	}
+
+	return true;
+}
+
+/***************************************************************************
  * The function reads a password from a stream. Echoing is switched off and
  * the tailing newline is removed.
  **************************************************************************/
@@ -604,6 +638,14 @@ static bool process_args(const int argc, char * const argv[], s_arguments *argum
 
 static bool deferred_main(const int argc, char * const argv[]) {
 	s_arguments arguments = { NULL, NULL, NULL, true };
+
+	//
+	//
+	//
+	if (!init_keys()) {
+		print_error_str("deferred_main() Unable to init keys!\n");
+		return false;
+	}
 
 	//
 	// parse the program arguments and save it in the arguments struct
