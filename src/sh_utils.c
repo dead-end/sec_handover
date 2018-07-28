@@ -76,7 +76,7 @@ char *trim(char *str) {
 	// skip tailing white spaces by overwriting them with '\0'
 	//
 	size_t len = strlen(ptr);
-	for (size_t i = len - 1; i >= 0 && isspace(ptr[i]); i--) {
+	for (int i = len - 1; i >= 0 && isspace(ptr[i]); i--) {
 		ptr[i] = '\0';
 	}
 
@@ -556,7 +556,7 @@ bool get_program_path(char *buffer, const size_t size) {
 		return false;
 	}
 
-	if (len > size - 1) {
+	if ((size_t) len > size - 1) {
 		print_error("get_program_path() Buffer to small: %zu required: %zu\n", size, len);
 		return false;
 	}
