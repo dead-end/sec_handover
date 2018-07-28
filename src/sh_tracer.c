@@ -59,7 +59,7 @@ static void wait_for_child(const char *id_parent, const pid_t pid_child, const c
  * The program is a test program for the ptrace structure.
  **************************************************************************/
 
-int main(int argc, char **argv) {
+int main() {
 
 	pid_t pid_child;
 

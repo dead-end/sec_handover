@@ -390,7 +390,7 @@ static void test5() {
  * The main function simply triggers the tests.
  **************************************************************************/
 
-int main(const int argc, const char *argv[]) {
+int main() {
 	char path[BUFFER_SIZE];
 	get_program_path(path, BUFFER_SIZE);
 
