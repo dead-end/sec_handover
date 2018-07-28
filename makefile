@@ -13,7 +13,7 @@ BIN_DIR = bin
 
 CC     = gcc
 #DEBUG  = -DDEBUG -g
-CFLAGS = -I$(INC_DIR) -Wall -Werror -Wpedantic $(DEBUG)
+CFLAGS = -I$(INC_DIR) -Wextra -Wall -Werror -Wpedantic $(DEBUG)
 LIBS   = -lgcrypt
 
 ############################################################################
@@ -96,3 +96,8 @@ clean:
 	rm -f */*.c~
 	rm -f */*.h~
 	rm -f $(EXEC_ALL) $(GEN_KEY_SRC)
+	
+secure:
+	rm -f */*.o
+	rm -f $(GEN_KEY_SRC)
+
