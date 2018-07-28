@@ -179,13 +179,13 @@ static bool read_checked_passwd(FILE *stream, char **passwd) {
 	char line2[MAX_LINE];
 
 	printf("Enter password:");
-	if (!read_password(stdin, line1, MAX_LINE)) {
+	if (!read_password(stream, line1, MAX_LINE)) {
 		print_error_str("read_checked_passwd() Unable to read password!\n");
 		return false;
 	}
 
 	printf("\nReenter password:");
-	if (!read_password(stdin, line2, MAX_LINE)) {
+	if (!read_password(stream, line2, MAX_LINE)) {
 		print_error_str("read_checked_passwd() Unable to read password!\n");
 		return false;
 	}
@@ -689,6 +689,10 @@ int main(const int argc, char * const argv[]) {
 	pid_t pid;
 
 	print_debug_str("Start!\n");
+
+	// TODO:
+	//	uid_t uid;
+	//	get_userid_from_name("speech-dispatcher", &uid);
 
 	//
 	// set ulimit to avoid core dumps
