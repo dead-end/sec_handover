@@ -80,7 +80,7 @@ static void cleanup_hmac_handle(gcry_mac_hd_t *hmac_handle) {
  * closed if it is not used anymore.
  **************************************************************************/
 
-static bool init_hmac_handle(gcry_mac_hd_t *hmac_handle, const unsigned char *key) {
+static bool init_hmac_handle(gcry_mac_hd_t *hmac_handle) {
 	gcry_error_t error;
 
 	//
@@ -122,7 +122,7 @@ static bool compute_hmac_over_file(FILE *file, unsigned char *hmac) {
 	//
 	// Set up the hmac handle (maybe not necessary for every file).
 	//
-	if (!init_hmac_handle(&hmac_handle, hmac_key)) {
+	if (!init_hmac_handle(&hmac_handle)) {
 		print_error_str("compute_hmac_over_file() Unable init hmac\n");
 		goto CLEANUP;
 	}
