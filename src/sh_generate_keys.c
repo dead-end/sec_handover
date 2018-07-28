@@ -37,7 +37,7 @@ static bool print_random_bytes(FILE *file, const size_t num_bytes) {
 	//
 	unsigned char *random = gcry_random_bytes_secure(num_bytes, GCRY_STRONG_RANDOM);
 
-	for (int i = 0; i < num_bytes; i++) {
+	for (size_t i = 0; i < num_bytes; i++) {
 		modulo = i % BLOCK_SIZE;
 
 		//
