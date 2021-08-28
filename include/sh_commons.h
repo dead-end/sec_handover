@@ -17,9 +17,11 @@
 #define DEBUG_OUT stdout
 #define print_debug(fmt, ...) fprintf(DEBUG_OUT, "DEBUG - " fmt, ##__VA_ARGS__)
 #define print_debug_str(fmt) fprintf(DEBUG_OUT, "DEBUG - " fmt)
+#define DEBUG_PARAM
 #else
 #define print_debug(fmt, ...)
 #define print_debug_str(fmt)
+#define DEBUG_PARAM __attribute__((unused))
 #endif
 
 //
