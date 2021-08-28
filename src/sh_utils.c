@@ -5,13 +5,6 @@
  *      Author: dead-end
  **************************************************************************/
 
-/***************************************************************************
- * getpwnam_r requires _POSIX_C_SOURCE >= 1
- * readlink   requires _POSIX_C_SOURCE >= 200112L
- **************************************************************************/
-
-#define _POSIX_C_SOURCE 200112L
-
 #include <errno.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -642,6 +635,8 @@ bool get_program_path(char *buffer, const size_t size)
 
 /***************************************************************************
  * The function returns a uid for a user represented by its name.
+ * 
+ * TODO: currently not used.
  **************************************************************************/
 
 bool get_userid_from_name(const char *name, uid_t *uid)
