@@ -13,7 +13,14 @@ BIN_DIR = bin
 
 CC     = gcc
 #DEBUG  = -DDEBUG -g
-CFLAGS = -I$(INC_DIR) -Wextra -Wall -Werror -Wpedantic $(DEBUG)
+
+#
+# readlink, getpwnam_r, strdup, ...
+#
+FEATURES = -D _POSIX_C_SOURCE=200809L -std=c11
+
+CFLAGS =  $(FEATURES) -O2 -I$(INC_DIR) -Wextra -Wall -Werror -Wpedantic $(DEBUG)
+
 LIBS   = -lgcrypt
 
 ############################################################################
@@ -100,4 +107,3 @@ clean:
 secure:
 	rm -f */*.o
 	rm -f $(GEN_KEY_SRC)
-

@@ -8,6 +8,8 @@
 #ifndef SH_UTILS_H_
 #define SH_UTILS_H_
 
+#include <sys/types.h>
+
 #define PRINT_BLOCK_LINE 16
 
 void debug_print_block(const char *msg, const unsigned char *block, const int block_size, const int per_line);
@@ -36,12 +38,13 @@ char **parse_cmd_argv(char *str);
 
 void free_cmd_argv(char **argv);
 
-typedef struct {
+typedef struct
+{
 	char *ptr;
 	char *result;
 } s_token;
 
-int count_tokens(char* str);
+int count_tokens(char *str);
 
 bool next_token(s_token *token);
 

@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <errno.h>
+#include <string.h>
 
 #include "sh_start_data.h"
 #include "sh_commons.h"
@@ -32,15 +33,20 @@
 //
 // An enumeration of the tags of the configuration file
 //
-enum cfg_tags {
-	CFG_TAG_CMD, CFG_TAG_PWD, CFG_TAG_HASH, CFG_TAG_NULL
+enum cfg_tags
+{
+	CFG_TAG_CMD,
+	CFG_TAG_PWD,
+	CFG_TAG_HASH,
+	CFG_TAG_NULL
 };
 
 /***************************************************************************
  * The function adds a hash_file to the end of the linked list.
  **************************************************************************/
 
-static void add_hash_file(s_start_data *start_data, s_hash_file *hash_file) {
+static void add_hash_file(s_start_data *start_data, s_hash_file *hash_file)
+{
 
 	//
 	// hash_file is the last element in the list, so next is NULL
@@ -50,7 +56,8 @@ static void add_hash_file(s_start_data *start_data, s_hash_file *hash_file) {
 	//
 	// if the list is empty there is no ->next
 	//
-	if (start_data->hash_files == NULL) {
+	if (start_data->hash_files == NULL)
+	{
 		start_data->hash_files = hash_file;
 		return;
 	}
@@ -59,7 +66,8 @@ static void add_hash_file(s_start_data *start_data, s_hash_file *hash_file) {
 	// search the last entry in the list
 	//
 	s_hash_file *ptr = start_data->hash_files;
-	while (ptr->next != NULL) {
+	while (ptr->next != NULL)
+	{
 		ptr = ptr->next;
 	}
 
@@ -70,7 +78,8 @@ static void add_hash_file(s_start_data *start_data, s_hash_file *hash_file) {
  * The method frees a start_data struct and its content.
  **************************************************************************/
 
-void sh_start_data_free(s_start_data *start_data) {
+void sh_start_data_free(s_start_data *start_data)
+{
 
 	print_debug_str("sh_start_data_free()\n");
 
@@ -78,7 +87,8 @@ void sh_start_data_free(s_start_data *start_data) {
 	// ensure that the function in NULL save. This is important if the
 	// allocation of the start data fails.
 	//
-	if (start_data == NULL) {
+	if (start_data == NULL)
+	{
 		print_debug_str("sh_start_data_free() Start data is NULL, so there is nothing to do!\n");
 	}
 
@@ -95,9 +105,11 @@ void sh_start_data_free(s_start_data *start_data) {
 	//
 	s_hash_file *ptr;
 
-	while (true) {
+	while (true)
+	{
 
-		if (start_data->hash_files == NULL) {
+		if (start_data->hash_files == NULL)
+		{
 			break;
 		}
 
@@ -116,12 +128,14 @@ void sh_start_data_free(s_start_data *start_data) {
  * The method checks and validates all variables of start_data.
  **************************************************************************/
 
-static bool check_start_data(const s_start_data *start_data, const bool with_hashes) {
+static bool check_start_data(const s_start_data *start_data, const bool with_hashes)
+{
 
 	//
 	// start data
 	//
-	if (start_data == NULL) {
+	if (start_data == NULL)
+	{
 		print_error_str("check_start_data() Start data is null!\n");
 		return false;
 	}
@@ -129,12 +143,14 @@ static bool check_start_data(const s_start_data *start_data, const bool with_has
 	//
 	// path
 	//
-	if (start_data->path == NULL) {
+	if (start_data->path == NULL)
+	{
 		print_error_str("check_start_data() Path is null!\n");
 		return false;
 	}
 
-	if (!is_path_absolute(start_data->path)) {
+	if (!is_path_absolute(start_data->path))
+	{
 		print_error("check_start_data()File is not absolute: %s\n", start_data->path);
 		return false;
 	}
@@ -142,7 +158,8 @@ static bool check_start_data(const s_start_data *start_data, const bool with_has
 	//
 	// password
 	//
-	if (start_data->passwd == NULL) {
+	if (start_data->passwd == NULL)
+	{
 		print_error_str("check_start_data() Password is null!\n");
 		return false;
 	}
@@ -150,12 +167,14 @@ static bool check_start_data(const s_start_data *start_data, const bool with_has
 	//
 	// arguments
 	//
-	if (start_data->argv == NULL) {
+	if (start_data->argv == NULL)
+	{
 		print_error_str("check_start_data() Command is null!\n");
 		return false;
 	}
 
-	if (start_data->argv[0] == NULL) {
+	if (start_data->argv[0] == NULL)
+	{
 		print_error_str("check_start_data() Command path is null!\n");
 		return false;
 	}
@@ -163,7 +182,8 @@ static bool check_start_data(const s_start_data *start_data, const bool with_has
 	//
 	// path is a copy of argv[0] - not a string compare
 	//
-	if (start_data->path != start_data->argv[0]) {
+	if (start_data->path != start_data->argv[0])
+	{
 		print_error("check_start_data() Command path %s and path %s are different!\n", start_data->path, start_data->argv[0]);
 		return false;
 	}
@@ -171,23 +191,27 @@ static bool check_start_data(const s_start_data *start_data, const bool with_has
 	//
 	// list of hash files
 	//
-	if (start_data->hash_files == NULL) {
+	if (start_data->hash_files == NULL)
+	{
 		print_error_str("check_start_data() Hash files is null!\n");
 		return false;
 	}
 
 	int count = 0;
-	for (s_hash_file *ptr = start_data->hash_files; ptr != NULL; ptr = ptr->next) {
+	for (s_hash_file *ptr = start_data->hash_files; ptr != NULL; ptr = ptr->next)
+	{
 
 		//
 		// filename of a hash file
 		//
-		if (ptr->filename == NULL) {
+		if (ptr->filename == NULL)
+		{
 			print_error("check_start_data() File no: %d - Filename is null!\n", count);
 			return false;
 		}
 
-		if (!is_path_absolute(ptr->filename)) {
+		if (!is_path_absolute(ptr->filename))
+		{
 			print_error("check_start_data() File no: %d - File is not absolute: %s\n", count, ptr->filename);
 			return false;
 		}
@@ -195,13 +219,16 @@ static bool check_start_data(const s_start_data *start_data, const bool with_has
 		//
 		// hash of a hash file, if present
 		//
-		if (with_hashes) {
-			if (ptr->hash == NULL) {
+		if (with_hashes)
+		{
+			if (ptr->hash == NULL)
+			{
 				print_error("check_start_data() File no: %d - Hash for file: %s is null!\n", count, ptr->filename);
 				return false;
 			}
 
-			if (strlen(ptr->hash) != HMAC_HEX_LEN) {
+			if (strlen(ptr->hash) != HMAC_HEX_LEN)
+			{
 				print_error("check_start_data() File no: %d - Hash len current: %zu expected: %d!\n", count, strlen(ptr->hash), HMAC_HEX_LEN);
 				return false;
 			}
@@ -216,25 +243,29 @@ static bool check_start_data(const s_start_data *start_data, const bool with_has
  * validation is done in check_start_data()
  **************************************************************************/
 
-static bool get_cmd(s_start_data *start_data, char *line) {
+static bool get_cmd(s_start_data *start_data, char *line)
+{
 
 	//
 	// Ensure that the command was not set. This would lead to memory leaks.
 	//
-	if (start_data->argv != NULL || start_data->path != NULL) {
+	if (start_data->argv != NULL || start_data->path != NULL)
+	{
 		print_error_str("get_cmd() Command was alreday set\n");
 		return false;
 	}
 
 	char **argv = parse_cmd_argv(line);
 
-	if (argv == NULL) {
+	if (argv == NULL)
+	{
 		print_error("get_cmd() Unable to parse line: %s\n", line);
 		return false;
 	}
 
 #ifdef DEBUG
-	for (char **a = argv; *a != NULL; a++) {
+	for (char **a = argv; *a != NULL; a++)
+	{
 		print_debug("get_cmd() arg: %s\n", *a);
 	}
 #endif
@@ -253,18 +284,21 @@ static bool get_cmd(s_start_data *start_data, char *line) {
  * validation is done in check_start_data()
  **************************************************************************/
 
-static bool get_password(s_start_data *start_data, char *line) {
+static bool get_password(s_start_data *start_data, char *line)
+{
 
 	//
 	// Ensure that the password was not set. This would lead to memory leaks.
 	//
-	if (start_data->passwd != NULL) {
+	if (start_data->passwd != NULL)
+	{
 		print_error_str("get_password() Password already set!\n");
 		return false;
 	}
 
 	start_data->passwd = strdup(line);
-	if (start_data->passwd == NULL) {
+	if (start_data->passwd == NULL)
+	{
 		print_error("get_password() Unable allocate memory: %s\n", strerror(errno));
 		return false;
 	}
@@ -279,14 +313,16 @@ static bool get_password(s_start_data *start_data, char *line) {
  * validation is done in check_start_data()
  **************************************************************************/
 
-static bool get_hash_file(s_start_data *start_data, char *line, const bool with_hashes) {
+static bool get_hash_file(s_start_data *start_data, char *line, const bool with_hashes)
+{
 	char *str;
 
 	//
 	// allocate memory for the hash_file
 	//
 	s_hash_file *hash_file = malloc(sizeof(s_hash_file));
-	if (hash_file == NULL) {
+	if (hash_file == NULL)
+	{
 		print_error("get_hash_file() Path with hash is too short: %s\n", line);
 		return false;
 	}
@@ -302,17 +338,20 @@ static bool get_hash_file(s_start_data *start_data, char *line, const bool with_
 	//
 	add_hash_file(start_data, hash_file);
 
-	if (with_hashes) {
+	if (with_hashes)
+	{
 
 		//
 		// value is: <hash>=<file> Filename length is minimum 1
 		//
-		if (strlen(line) < HMAC_HEX_LEN + 2) {
+		if (strlen(line) < HMAC_HEX_LEN + 2)
+		{
 			print_error("get_hash_file() Path with hash is too short: %s\n", line);
 			return false;
 		}
 
-		if (line[HMAC_HEX_LEN] != '=') {
+		if (line[HMAC_HEX_LEN] != '=')
+		{
 			print_error("get_hash_file() Path with hash has no '=' character: %s\n", line);
 			return false;
 		}
@@ -321,7 +360,8 @@ static bool get_hash_file(s_start_data *start_data, char *line, const bool with_
 		// allocate memory
 		//
 		hash_file->hash = malloc(HMAC_HEX_LEN + 1);
-		if (hash_file->hash == NULL) {
+		if (hash_file->hash == NULL)
+		{
 			print_error("get_hash_file() Unable to allocate memory for: %s\n", line);
 			return false;
 		}
@@ -335,8 +375,9 @@ static bool get_hash_file(s_start_data *start_data, char *line, const bool with_
 		str = &line[HMAC_HEX_LEN + 1];
 
 		print_debug("get_hash_file() Found hash: %s\n", hash_file->hash);
-
-	} else {
+	}
+	else
+	{
 		str = line;
 	}
 
@@ -344,7 +385,8 @@ static bool get_hash_file(s_start_data *start_data, char *line, const bool with_
 	// allocate memory
 	//
 	hash_file->filename = strdup(str);
-	if (hash_file->filename == NULL) {
+	if (hash_file->filename == NULL)
+	{
 		print_error("get_hash_file() Unable allocate memory: %s for line: %s\n", strerror(errno), line);
 		return false;
 	}
@@ -360,13 +402,15 @@ static bool get_hash_file(s_start_data *start_data, char *line, const bool with_
  * state which is current_tag and writes the result to the start_data.
  **************************************************************************/
 
-static bool parse_line(char *line, enum cfg_tags *current_tag, s_start_data *start_data, const bool with_hashes) {
+static bool parse_line(char *line, enum cfg_tags *current_tag, s_start_data *start_data, const bool with_hashes)
+{
 
 	//
 	// trim line and ignore empty lines and comments
 	//
 	char *ptr = trim(line);
-	if (strlen(ptr) == 0 || ptr[0] == '#') {
+	if (strlen(ptr) == 0 || ptr[0] == '#')
+	{
 		return true;
 	}
 
@@ -375,18 +419,23 @@ static bool parse_line(char *line, enum cfg_tags *current_tag, s_start_data *sta
 	//
 	// Parse and set the tag
 	//
-	if (ptr[0] == '[') {
+	if (ptr[0] == '[')
+	{
 
-		if (strncmp(TAG_CMD, ptr, TAG_LEN_CMD) == 0) {
+		if (strncmp(TAG_CMD, ptr, TAG_LEN_CMD) == 0)
+		{
 			*current_tag = CFG_TAG_CMD;
-
-		} else if (strncmp(TAG_PWD, ptr, TAG_LEN_PWD) == 0) {
+		}
+		else if (strncmp(TAG_PWD, ptr, TAG_LEN_PWD) == 0)
+		{
 			*current_tag = CFG_TAG_PWD;
-
-		} else if (strncmp(TAG_HASH, ptr, TAG_LEN_HASH) == 0) {
+		}
+		else if (strncmp(TAG_HASH, ptr, TAG_LEN_HASH) == 0)
+		{
 			*current_tag = CFG_TAG_HASH;
-
-		} else {
+		}
+		else
+		{
 			print_error("parse_line() Unknown tag in line: %s\n", line);
 			return false;
 		}
@@ -394,25 +443,31 @@ static bool parse_line(char *line, enum cfg_tags *current_tag, s_start_data *sta
 		//
 		// The lines are values (not empty or comments)
 		//
-	} else {
+	}
+	else
+	{
 
-		switch (*current_tag) {
+		switch (*current_tag)
+		{
 		case CFG_TAG_CMD:
-			if (!get_cmd(start_data, ptr)) {
+			if (!get_cmd(start_data, ptr))
+			{
 				print_error("parse_line() Unable to get command from line: %s\n", ptr);
 				return false;
 			}
 			break;
 
 		case CFG_TAG_PWD:
-			if (!get_password(start_data, ptr)) {
+			if (!get_password(start_data, ptr))
+			{
 				print_error("parse_line() Unable to get password from line: %s\n", ptr);
 				return false;
 			}
 			break;
 
 		case CFG_TAG_HASH:
-			if (!get_hash_file(start_data, ptr, with_hashes)) {
+			if (!get_hash_file(start_data, ptr, with_hashes))
+			{
 				print_error("parse_line() Unable to get hash file from line: %s\n", ptr);
 				return false;
 			}
@@ -432,7 +487,8 @@ static bool parse_line(char *line, enum cfg_tags *current_tag, s_start_data *sta
  * contain hashes.
  **************************************************************************/
 
-bool sh_start_data_read(const char *filename, s_start_data *start_data, const bool with_hashes) {
+bool sh_start_data_read(const char *filename, s_start_data *start_data, const bool with_hashes)
+{
 
 	bool result = false;
 
@@ -440,7 +496,8 @@ bool sh_start_data_read(const char *filename, s_start_data *start_data, const bo
 	// open the input file
 	//
 	FILE *file = fopen(filename, "r");
-	if (file == NULL) {
+	if (file == NULL)
+	{
 		print_error("sh_start_data_read() Unable to open file %s due to: %s\n", filename, strerror(errno));
 		return false;
 	}
@@ -451,9 +508,11 @@ bool sh_start_data_read(const char *filename, s_start_data *start_data, const bo
 	//
 	// parse the file line by line
 	//
-	while (fgets(line, MAX_LINE, file) != NULL) {
+	while (fgets(line, MAX_LINE, file) != NULL)
+	{
 
-		if (!parse_line(line, &current_tag, start_data, with_hashes)) {
+		if (!parse_line(line, &current_tag, start_data, with_hashes))
+		{
 			print_error("sh_start_data_read() Unable to parse line: %s\n", line);
 			goto CLEANUP;
 		}
@@ -462,17 +521,18 @@ bool sh_start_data_read(const char *filename, s_start_data *start_data, const bo
 	//
 	// check the result
 	//
-	if (!check_start_data(start_data, with_hashes)) {
+	if (!check_start_data(start_data, with_hashes))
+	{
 		print_error_str("sh_start_data_read() Start data is not valid!\n");
 		goto CLEANUP;
 	}
 
 	result = true;
 
-	//
-	// Cleanup allocated resources
-	//
-	CLEANUP:
+//
+// Cleanup allocated resources
+//
+CLEANUP:
 
 	fclose_silent(file, filename);
 
@@ -484,7 +544,8 @@ bool sh_start_data_read(const char *filename, s_start_data *start_data, const bo
  * file always contains hash values.
  **************************************************************************/
 
-bool sh_start_data_read_encr(const char *filename, s_start_data *start_data) {
+bool sh_start_data_read_encr(const char *filename, s_start_data *start_data)
+{
 
 	crypt_ctx ctx = sh_gc_ctx;
 	bool result = false;
@@ -492,12 +553,14 @@ bool sh_start_data_read_encr(const char *filename, s_start_data *start_data) {
 	//
 	// decrypt the file
 	//
-	if (!sh_gc_open_decrypt(&ctx, filename)) {
+	if (!sh_gc_open_decrypt(&ctx, filename))
+	{
 		print_error("sh_start_data_read_encr() Unable to open file for decryption: %s\n", filename);
 		goto CLEANUP;
 	}
 
-	if (!sh_gc_decrypt_data(&ctx)) {
+	if (!sh_gc_decrypt_data(&ctx))
+	{
 		print_error("sh_start_data_read_encr() Unable to decrypt file: %s\n", filename);
 		goto CLEANUP;
 	}
@@ -509,13 +572,15 @@ bool sh_start_data_read_encr(const char *filename, s_start_data *start_data) {
 	//
 	// split the decrypted buffer into lines
 	//
-	while ((line = strtok_r(rest, "\n", &rest))) {
+	while ((line = strtok_r(rest, "\n", &rest)))
+	{
 		print_debug("sh_start_data_read_encr() decrypted line: %s\n", line);
 
 		//
 		// parse each line
 		//
-		if (!parse_line(line, &current_tag, start_data, true)) {
+		if (!parse_line(line, &current_tag, start_data, true))
+		{
 			print_error("sh_start_data_read_encr() Unable to parse line: %s\n", line);
 			goto CLEANUP;
 		}
@@ -524,17 +589,18 @@ bool sh_start_data_read_encr(const char *filename, s_start_data *start_data) {
 	//
 	// check the result
 	//
-	if (!check_start_data(start_data, true)) {
+	if (!check_start_data(start_data, true))
+	{
 		print_error_str("sh_start_data_read_encr() Start data is not valid!\n");
 		goto CLEANUP;
 	}
 
 	result = true;
 
-	//
-	// Cleanup allocated resources
-	//
-	CLEANUP:
+//
+// Cleanup allocated resources
+//
+CLEANUP:
 
 	sh_gc_close(&ctx);
 
@@ -545,7 +611,8 @@ bool sh_start_data_read_encr(const char *filename, s_start_data *start_data) {
  * The function writes the start data to a file. The data will be encrypted.
  **************************************************************************/
 
-bool sh_start_data_write_encr(const char *file_name, const s_start_data *start_data) {
+bool sh_start_data_write_encr(const char *file_name, const s_start_data *start_data)
+{
 
 	crypt_ctx ctx = sh_gc_ctx;
 	char line[MAX_LINE];
@@ -554,7 +621,8 @@ bool sh_start_data_write_encr(const char *file_name, const s_start_data *start_d
 	//
 	// start encryption
 	//
-	if (!sh_gc_open_encrypt(&ctx, file_name)) {
+	if (!sh_gc_open_encrypt(&ctx, file_name))
+	{
 		print_error("sh_start_data_write_encr() Unable to start writing encrypted file: %s\n", file_name);
 		goto CLEANUP;
 	}
@@ -563,7 +631,8 @@ bool sh_start_data_write_encr(const char *file_name, const s_start_data *start_d
 	// command
 	//
 	snprintf(line, MAX_LINE, "%s\n", TAG_CMD);
-	if (!sh_gc_write(&ctx, line, strlen(line))) {
+	if (!sh_gc_write(&ctx, line, strlen(line)))
+	{
 		print_error("sh_start_data_write_encr() Unable to encrypt line: %s\n", line);
 		goto CLEANUP;
 	}
@@ -571,16 +640,19 @@ bool sh_start_data_write_encr(const char *file_name, const s_start_data *start_d
 	//
 	// arguments
 	//
-	for (char **ptr = start_data->argv; *ptr != NULL; ptr++) {
+	for (char **ptr = start_data->argv; *ptr != NULL; ptr++)
+	{
 		snprintf(line, MAX_LINE, "%s ", *ptr);
-		if (!sh_gc_write(&ctx, line, strlen(line))) {
+		if (!sh_gc_write(&ctx, line, strlen(line)))
+		{
 			print_error("sh_start_data_write_encr() Unable to encrypt line: %s\n", line);
 			goto CLEANUP;
 		}
 	}
 
 	snprintf(line, MAX_LINE, "\n");
-	if (!sh_gc_write(&ctx, line, strlen(line))) {
+	if (!sh_gc_write(&ctx, line, strlen(line)))
+	{
 		print_error("sh_start_data_write_encr() Unable to encrypt line: %s\n", line);
 		goto CLEANUP;
 	}
@@ -589,23 +661,28 @@ bool sh_start_data_write_encr(const char *file_name, const s_start_data *start_d
 	// hash files
 	//
 	snprintf(line, MAX_LINE, "%s\n", TAG_HASH);
-	if (!sh_gc_write(&ctx, line, strlen(line))) {
+	if (!sh_gc_write(&ctx, line, strlen(line)))
+	{
 		print_error("sh_start_data_write_encr() Unable to encrypt line: %s\n", line);
 		goto CLEANUP;
 	}
 
-	for (s_hash_file *ptr = start_data->hash_files; ptr != NULL; ptr = ptr->next) {
+	for (s_hash_file *ptr = start_data->hash_files; ptr != NULL; ptr = ptr->next)
+	{
 
-		if (ptr->hash != NULL) {
+		if (ptr->hash != NULL)
+		{
 			snprintf(line, MAX_LINE, "%s=", ptr->hash);
-			if (!sh_gc_write(&ctx, line, strlen(line))) {
+			if (!sh_gc_write(&ctx, line, strlen(line)))
+			{
 				print_error("sh_start_data_write_encr() Unable to encrypt line: %s\n", line);
 				goto CLEANUP;
 			}
 		}
 
 		snprintf(line, MAX_LINE, "%s\n", ptr->filename);
-		if (!sh_gc_write(&ctx, line, strlen(line))) {
+		if (!sh_gc_write(&ctx, line, strlen(line)))
+		{
 			print_error("sh_start_data_write_encr() Unable to encrypt line: %s\n", line);
 			goto CLEANUP;
 		}
@@ -615,13 +692,15 @@ bool sh_start_data_write_encr(const char *file_name, const s_start_data *start_d
 	// password
 	//
 	snprintf(line, MAX_LINE, "%s\n", TAG_PWD);
-	if (!sh_gc_write(&ctx, line, strlen(line))) {
+	if (!sh_gc_write(&ctx, line, strlen(line)))
+	{
 		print_error("sh_start_data_write_encr() Unable to encrypt line: %s\n", line);
 		goto CLEANUP;
 	}
 
 	snprintf(line, MAX_LINE, "%s\n", start_data->passwd);
-	if (!sh_gc_write(&ctx, line, strlen(line))) {
+	if (!sh_gc_write(&ctx, line, strlen(line)))
+	{
 		print_error_str("sh_start_data_write_encr() Unable to encrypt line with password\n");
 		goto CLEANUP;
 	}
@@ -629,17 +708,18 @@ bool sh_start_data_write_encr(const char *file_name, const s_start_data *start_d
 	//
 	// finish encryption by adding padding if necessary
 	//
-	if (!sh_gc_finish_write(&ctx)) {
+	if (!sh_gc_finish_write(&ctx))
+	{
 		print_error("sh_start_data_write_encr() Unable to finish writing encrypted file: %s\n", file_name);
 		goto CLEANUP;
 	}
 
 	result = true;
 
-	//
-	// Cleanup allocated resources
-	//
-	CLEANUP:
+//
+// Cleanup allocated resources
+//
+CLEANUP:
 
 	sh_gc_close(&ctx);
 
@@ -652,7 +732,8 @@ bool sh_start_data_write_encr(const char *file_name, const s_start_data *start_d
  * configured hashes to see if a file has change, which is a security risc.
  **************************************************************************/
 
-bool sh_start_data_compute_hashes(s_start_data *start_data, const bool compare) {
+bool sh_start_data_compute_hashes(s_start_data *start_data, const bool compare)
+{
 
 	unsigned char hmac[HMAC_LEN];
 	char hash[sh_hex_get_hex_len(HMAC_LEN)];
@@ -660,24 +741,28 @@ bool sh_start_data_compute_hashes(s_start_data *start_data, const bool compare) 
 	//
 	// loop over the linked list of hash files
 	//
-	for (s_hash_file *hash_file = start_data->hash_files; hash_file != NULL; hash_file = hash_file->next) {
+	for (s_hash_file *hash_file = start_data->hash_files; hash_file != NULL; hash_file = hash_file->next)
+	{
 
 		//
 		// compute the hash (bin) for the file
 		//
-		if (!sh_gc_compute_hmac(hash_file->filename, hmac)) {
+		if (!sh_gc_compute_hmac(hash_file->filename, hmac))
+		{
 			print_error("sh_start_data_compute_hashes() Unable to compute hmac over file: %s\n", hash_file->filename);
 			return false;
 		}
 
 		sh_hex_array_to_hex(hmac, HMAC_LEN, hash);
 
-		if (compare) {
+		if (compare)
+		{
 
 			//
 			// ensure the hash_file structure has a hash to compare
 			//
-			if (hash_file->hash == NULL) {
+			if (hash_file->hash == NULL)
+			{
 				print_error("sh_start_data_compute_hashes() File: %s has no hash!\n", hash_file->filename);
 				return false;
 			}
@@ -685,7 +770,8 @@ bool sh_start_data_compute_hashes(s_start_data *start_data, const bool compare) 
 			//
 			// compare the hashes
 			//
-			if (strcmp(hash, hash_file->hash) != 0) {
+			if (strcmp(hash, hash_file->hash) != 0)
+			{
 				print_error("sh_start_data_compute_hashes() Hashes differ for file: %s\n", hash_file->filename);
 				print_error("sh_start_data_compute_hashes() Configured: %s\n", hash_file->hash);
 				print_error("sh_start_data_compute_hashes() Current:    %s\n", hash);
@@ -693,13 +779,15 @@ bool sh_start_data_compute_hashes(s_start_data *start_data, const bool compare) 
 			}
 
 			print_debug_str("sh_start_data_compute_hashes() Hashes are equal!\n");
-
-		} else {
+		}
+		else
+		{
 
 			//
 			// ensure the hash_file structure has not a hash that would be overwritten
 			//
-			if (hash_file->hash != NULL) {
+			if (hash_file->hash != NULL)
+			{
 				print_error("sh_start_data_compute_hashes() File: %s already has a hash: %s\n", hash_file->filename, hash_file->hash);
 				return false;
 			}
@@ -708,7 +796,8 @@ bool sh_start_data_compute_hashes(s_start_data *start_data, const bool compare) 
 			// allocate memory for the hash (hex) and write the hash as a hex string
 			//
 			hash_file->hash = strdup(hash);
-			if (hash_file->hash == NULL) {
+			if (hash_file->hash == NULL)
+			{
 				print_error_str("sh_start_data_compute_hashes() Unable to allocate memory\n");
 				return false;
 			}
@@ -719,4 +808,3 @@ bool sh_start_data_compute_hashes(s_start_data *start_data, const bool compare) 
 
 	return true;
 }
-
