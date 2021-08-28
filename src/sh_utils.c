@@ -33,7 +33,7 @@ void debug_print_buffer(const char *msg, const char *buffer, const int buffer_si
 	memcpy(tmp_buffer, buffer, buffer_size);
 	tmp_buffer[buffer_size] = '\0';
 
-	for (int i = buffer_size - 1; !isprint(tmp_buffer[i]); i++)
+	for (int i = buffer_size - 1; !isprint(tmp_buffer[i]); i--)
 	{
 		tmp_buffer[buffer_size] = '\0';
 	}
