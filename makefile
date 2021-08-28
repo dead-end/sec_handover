@@ -8,20 +8,60 @@ OBJ_DIR = obj
 BIN_DIR = bin
 
 ############################################################################
-# Definition of the compiler and its flags.
+# Definition of the compiler.
 ############################################################################
 
-CC     = gcc
-#DEBUG  = -DDEBUG -g
+CC = gcc
 
+################################################################################
+# A variable that collects the optional flags.
+################################################################################
+
+OPTION_FLAGS=
+
+################################################################################
+# A debug flag for the application. 
+################################################################################
+
+DEBUG = false
+
+ifeq ($(DEBUG),true)
+  OPTION_FLAGS += -DDEBUG -g
+  
+  #
+  # The following definitions switch on asan in debug mode.
+  #
+  OPTION_FLAGS += -fsanitize=address,undefined -fsanitize-undefined-trap-on-error -static-libasan -fno-omit-frame-pointer
+endif
+
+############################################################################
+# We want all hints for bugs and errors.
+############################################################################
+
+OPTION_FLAGS = -Wextra -Wall -Werror -Wpedantic
+
+############################################################################
+# Global definition of the POSIX standard. It does not make sence to define
+# the standard per file.
 #
 # readlink, getpwnam_r, strdup, ...
-#
-FEATURES = -D _POSIX_C_SOURCE=200809L -std=c11
+############################################################################
 
-CFLAGS =  $(FEATURES) -O2 -I$(INC_DIR) -Wextra -Wall -Werror -Wpedantic $(DEBUG)
+OPTION_FLAGS += -D _POSIX_C_SOURCE=200809L 
 
-LIBS   = -lgcrypt
+############################################################################
+# Definition of the c standard (ISO C11).
+############################################################################
+
+OPTION_FLAGS += -std=c11
+
+############################################################################
+# Set flags and libs
+############################################################################
+
+CFLAGS =  $(OPTION_FLAGS) -O2 -I$(INC_DIR) $(shell libgcrypt-config --cflags)
+
+LIBS   = $(shell libgcrypt-config --libs)
 
 ############################################################################
 # Definition of the project files.
@@ -90,13 +130,13 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c $(INCS)
 # Definition of the cleanup and run task. 
 ############################################################################
 
-.PHONY: run clean
+.PHONY: run test clean secure
 
 run:
 	./$(SH_EXEC)
 
 test:
-	./$(SH_TEST)
+	./$(TEST_EXEC)
 	
 clean:
 	rm -f */*.o 
@@ -104,6 +144,5 @@ clean:
 	rm -f */*.h~
 	rm -f $(EXEC_ALL) $(GEN_KEY_SRC)
 	
-secure:
-	rm -f */*.o
+secure: clean
 	rm -f $(GEN_KEY_SRC)
