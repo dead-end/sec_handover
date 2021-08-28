@@ -5,6 +5,13 @@
  *      Author: dead-end
  **************************************************************************/
 
+/***************************************************************************
+ * getpwnam_r requires _POSIX_C_SOURCE >= 1
+ * readlink   requires _POSIX_C_SOURCE >= 200112L
+ **************************************************************************/
+
+#define _POSIX_C_SOURCE 200112L
+
 #include <errno.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -26,13 +33,15 @@
  * padding chars, which are not necessary printable.
  **************************************************************************/
 
-void debug_print_buffer(const char *msg, const char *buffer, const int buffer_size) {
+void debug_print_buffer(const char *msg, const char *buffer, const int buffer_size)
+{
 	char tmp_buffer[buffer_size + 1];
 
 	memcpy(tmp_buffer, buffer, buffer_size);
 	tmp_buffer[buffer_size] = '\0';
 
-	for (int i = buffer_size - 1; !isprint(tmp_buffer[i]); i++) {
+	for (int i = buffer_size - 1; !isprint(tmp_buffer[i]); i++)
+	{
 		tmp_buffer[buffer_size] = '\0';
 	}
 
@@ -44,13 +53,16 @@ void debug_print_buffer(const char *msg, const char *buffer, const int buffer_si
  * The function prints an array of 'unsigned char' with a block size.
  **************************************************************************/
 
-void debug_print_block(const char *msg, const unsigned char *block, const int block_size, const int per_line) {
+void debug_print_block(const char *msg, const unsigned char *block, const int block_size, const int per_line)
+{
 
 	printf("debug_print_block() %s\n", msg);
 
-	for (int i = 0; i < block_size; i++) {
+	for (int i = 0; i < block_size; i++)
+	{
 		printf("%02x", block[i]);
-		if (i % per_line == per_line - 1) {
+		if (i % per_line == per_line - 1)
+		{
 			printf("\n");
 		}
 	}
@@ -63,7 +75,8 @@ void debug_print_block(const char *msg, const unsigned char *block, const int bl
  * argument string.
  **************************************************************************/
 
-char *trim(char *str) {
+char *trim(char *str)
+{
 	char *ptr;
 
 	//
@@ -76,7 +89,8 @@ char *trim(char *str) {
 	// skip tailing white spaces by overwriting them with '\0'
 	//
 	size_t len = strlen(ptr);
-	for (int i = len - 1; i >= 0 && isspace(ptr[i]); i--) {
+	for (int i = len - 1; i >= 0 && isspace(ptr[i]); i--)
+	{
 		ptr[i] = '\0';
 	}
 
@@ -88,15 +102,20 @@ char *trim(char *str) {
  * is returned. On failure an error message is print and false is returned.
  **************************************************************************/
 
-bool write_array(FILE *file, const void *array, const size_t array_len) {
+bool write_array(FILE *file, const void *array, const size_t array_len)
+{
 
 	const size_t write_len = fwrite(array, 1, array_len, file);
 
-	if (write_len != array_len) {
-		if (ferror(file) != 0) {
+	if (write_len != array_len)
+	{
+		if (ferror(file) != 0)
+		{
 			print_error("write_array() Unable to write array due to: %s\n", strerror(errno));
 			return false;
-		} else {
+		}
+		else
+		{
 			print_error_str("write_array() Unable to write array!\n");
 			return false;
 		}
@@ -113,9 +132,11 @@ bool write_array(FILE *file, const void *array, const size_t array_len) {
  * and false is returned.
  **************************************************************************/
 
-bool write_array_to(FILE *file, const void *array, const size_t array_len, const long offset, const int whence) {
+bool write_array_to(FILE *file, const void *array, const size_t array_len, const long offset, const int whence)
+{
 
-	if (fseek(file, offset, whence) != 0) {
+	if (fseek(file, offset, whence) != 0)
+	{
 		print_error("write_array_to() fseek failed due to: %s\n", strerror(errno));
 		return false;
 	}
@@ -128,15 +149,20 @@ bool write_array_to(FILE *file, const void *array, const size_t array_len, const
  * is returned. On failure an error message is print and false is returned.
  **************************************************************************/
 
-bool read_array_complete(FILE *file, void *array, const size_t array_len) {
+bool read_array_complete(FILE *file, void *array, const size_t array_len)
+{
 
 	const size_t read_len = fread(array, 1, array_len, file);
 
-	if (read_len != array_len) {
-		if (ferror(file) != 0) {
+	if (read_len != array_len)
+	{
+		if (ferror(file) != 0)
+		{
 			print_error("read_array_complete() Unable to read array due to: %s\n", strerror(errno));
 			return false;
-		} else {
+		}
+		else
+		{
 			print_error_str("read_array_complete() Unable to read array!\n");
 			return false;
 		}
@@ -153,9 +179,11 @@ bool read_array_complete(FILE *file, void *array, const size_t array_len) {
  * and false is returned.
  **************************************************************************/
 
-bool read_array_complete_from(FILE *file, void *array, const size_t array_len, const long offset, const int whence) {
+bool read_array_complete_from(FILE *file, void *array, const size_t array_len, const long offset, const int whence)
+{
 
-	if (fseek(file, offset, whence) != 0) {
+	if (fseek(file, offset, whence) != 0)
+	{
 		print_error("read_array_complete_from() fseek failed due to: %s\n", strerror(errno));
 		return false;
 	}
@@ -167,8 +195,10 @@ bool read_array_complete_from(FILE *file, void *array, const size_t array_len, c
  * The function closes a file stream if necessary.
  **************************************************************************/
 
-void fclose_silent(FILE *file, const char *file_name) {
-	if (file != NULL) {
+void fclose_silent(FILE *file, DEBUG_PARAM const char *file_name)
+{
+	if (file != NULL)
+	{
 		print_debug("fclose_silent() Closing file: %s\n", file_name);
 		fclose(file);
 	}
@@ -178,11 +208,13 @@ void fclose_silent(FILE *file, const char *file_name) {
  * The function returns the size of a file from a file descriptor.
  **************************************************************************/
 
-bool get_file_size(const int fd, size_t *ptr) {
+bool get_file_size(const int fd, size_t *ptr)
+{
 
 	struct stat sb;
 
-	if (fstat(fd, &sb) == -1) {
+	if (fstat(fd, &sb) == -1)
+	{
 		print_error("get_file_size() Unable to get file size: %s\n", strerror(errno));
 		return false;
 	}
@@ -198,17 +230,20 @@ bool get_file_size(const int fd, size_t *ptr) {
  * that the file exists.
  **************************************************************************/
 
-bool is_path_absolute(const char *path) {
+bool is_path_absolute(const char *path)
+{
 
 	//
 	// path has to start with '/' so the minimum length is 1
 	//
-	if (path == NULL || strlen(path) < 1) {
+	if (path == NULL || strlen(path) < 1)
+	{
 		print_error_str("is_path_absolute() Path is NULL or empty!\n");
 		return false;
 	}
 
-	if (path[0] != '/' || strstr(path, "..") != NULL) {
+	if (path[0] != '/' || strstr(path, "..") != NULL)
+	{
 		print_error("is_path_absolute() Path is not absolute: %s\n", path);
 		return false;
 	}
@@ -221,7 +256,8 @@ bool is_path_absolute(const char *path) {
  * file is the same after encryption and decryption.
  **************************************************************************/
 
-bool compare_files(const char *file_name_1, const char *file_name_2) {
+bool compare_files(const char *file_name_1, const char *file_name_2)
+{
 	FILE *file_1 = NULL;
 	FILE *file_2 = NULL;
 
@@ -235,24 +271,28 @@ bool compare_files(const char *file_name_1, const char *file_name_2) {
 	print_debug("compare_files() Compare file: %s and file: %s\n", file_name_1, file_name_2);
 
 	file_1 = fopen(file_name_1, "rb");
-	if (file_1 == NULL) {
+	if (file_1 == NULL)
+	{
 		fprintf(stderr, "ERROR - compare_files() Unable to open file: %s due to: %s\n", file_name_1, strerror(errno));
 		result = false;
 		goto CLEANUP;
 	}
 
 	file_2 = fopen(file_name_2, "rb");
-	if (file_2 == NULL) {
+	if (file_2 == NULL)
+	{
 		fprintf(stderr, "ERROR - compare_files() Unable to open file: %s due to: %s\n", file_name_2, strerror(errno));
 		result = false;
 		goto CLEANUP;
 	}
 
-	while (true) {
+	while (true)
+	{
 		bytes_1 = fread(buffer_1, 1, BUFFER_SIZE, file_1);
 		bytes_2 = fread(buffer_2, 1, BUFFER_SIZE, file_2);
 
-		if (bytes_1 != bytes_2) {
+		if (bytes_1 != bytes_2)
+		{
 			fprintf(stderr, "ERROR - compare_files() File: %s size: %zu!\n", file_name_1, bytes_1);
 			fprintf(stderr, "ERROR - compare_files() File: %s size: %zu!\n", file_name_2, bytes_2);
 			fprintf(stderr, "ERROR - compare_files() Files: %s and %s differ in size!\n", file_name_1, file_name_2);
@@ -260,12 +300,14 @@ bool compare_files(const char *file_name_1, const char *file_name_2) {
 			break;
 		}
 
-		if (bytes_1 == 0) {
+		if (bytes_1 == 0)
+		{
 			print_debug("compare_files() Files: %s and: %s are identical.\n", file_name_1, file_name_2);
 			break;
 		}
 
-		if (memcmp(buffer_1, buffer_2, bytes_1) != 0) {
+		if (memcmp(buffer_1, buffer_2, bytes_1) != 0)
+		{
 			fprintf(stderr, "ERROR - compare_files() Files: %s and: %s differ in data!\n", file_name_1, file_name_2);
 			result = false;
 			break;
@@ -274,7 +316,7 @@ bool compare_files(const char *file_name_1, const char *file_name_2) {
 
 	print_debug("compare_files() File: %s and file: %s are identical.\n", file_name_1, file_name_2);
 
-	CLEANUP:
+CLEANUP:
 
 	fclose_silent(file_1, file_name_1);
 	fclose_silent(file_2, file_name_2);
@@ -287,7 +329,8 @@ bool compare_files(const char *file_name_1, const char *file_name_2) {
  * result.
  **************************************************************************/
 
-int count_tokens(char *str) {
+int count_tokens(char *str)
+{
 	int count = 0;
 
 	//
@@ -295,19 +338,24 @@ int count_tokens(char *str) {
 	//
 	bool inside_word = false;
 
-	for (char *ptr = str; *ptr != '\0'; ptr++) {
-		if (*ptr == ' ') {
-			if (inside_word) {
+	for (char *ptr = str; *ptr != '\0'; ptr++)
+	{
+		if (*ptr == ' ')
+		{
+			if (inside_word)
+			{
 				inside_word = false;
 			}
-
-		} else {
+		}
+		else
+		{
 
 			//
 			// we are not inside a token and there is a non space char, so we
 			// have found a new token
 			//
-			if (!inside_word) {
+			if (!inside_word)
+			{
 				inside_word = true;
 				count++;
 			}
@@ -330,12 +378,14 @@ int count_tokens(char *str) {
  * The function returns false if an error occurs and true otherwise.
  **************************************************************************/
 
-bool next_token(s_token *token) {
+bool next_token(s_token *token)
+{
 
 	char *ptr_start;
 	char *ptr_end;
 
-	if (token->ptr == NULL) {
+	if (token->ptr == NULL)
+	{
 		token->result = NULL;
 		return true;
 	}
@@ -349,7 +399,8 @@ bool next_token(s_token *token) {
 	//
 	// if there is no token, but only spaces we reach the end of the string
 	//
-	if (*ptr_start == '\0') {
+	if (*ptr_start == '\0')
+	{
 		token->ptr = NULL;
 		token->result = NULL;
 		return true;
@@ -368,7 +419,8 @@ bool next_token(s_token *token) {
 	const size_t len = ptr_end - ptr_start;
 	token->result = malloc(len + 1);
 
-	if (token->result == NULL) {
+	if (token->result == NULL)
+	{
 		print_error_str("next_token() Unable to allocate memory!\n");
 		return false;
 	}
@@ -395,14 +447,17 @@ bool next_token(s_token *token) {
  * It is used as an argument to a execvp call.
  **************************************************************************/
 
-void free_cmd_argv(char **argv) {
+void free_cmd_argv(char **argv)
+{
 	char **ptr;
 
-	if (argv == NULL) {
+	if (argv == NULL)
+	{
 		return;
 	}
 
-	for (ptr = argv; *ptr != NULL; ptr++) {
+	for (ptr = argv; *ptr != NULL; ptr++)
+	{
 		print_debug("free_cmd_argv() Freeing: %s\n", *ptr);
 		free(*ptr);
 	}
@@ -416,7 +471,8 @@ void free_cmd_argv(char **argv) {
  * If an error occurred the method returns NULL.
  **************************************************************************/
 
-char **parse_cmd_argv(char *str) {
+char **parse_cmd_argv(char *str)
+{
 
 	//
 	// the flag is used to indicate an error, which is used for a cleanup at
@@ -430,15 +486,17 @@ char **parse_cmd_argv(char *str) {
 	//
 	const int words = count_tokens(str);
 
-	if (words < 1) {
+	if (words < 1)
+	{
 		print_error_str("parse_cmd_argv() Empty command\n");
 		return NULL;
 	}
 
-	char** argv;
+	char **argv;
 	argv = calloc(sizeof(char *), (words + 1));
 
-	if (argv == NULL) {
+	if (argv == NULL)
+	{
 		print_error_str("parse_cmd_argv() Unable to allocate memory!\n");
 		return NULL;
 	}
@@ -447,9 +505,11 @@ char **parse_cmd_argv(char *str) {
 	s_token token;
 	token.ptr = str;
 
-	for (int i = 0; i < words; i++) {
+	for (int i = 0; i < words; i++)
+	{
 
-		if (!next_token(&token)) {
+		if (!next_token(&token))
+		{
 			print_error("parse_cmd_argv() Error occurred while getting a token from string %s\n", str);
 			goto CLEANUP;
 		}
@@ -458,7 +518,8 @@ char **parse_cmd_argv(char *str) {
 		// a result of NULL means that there is no token, but we counted
 		// the tokens at the beginning.
 		//
-		if (token.result == NULL) {
+		if (token.result == NULL)
+		{
 			print_error("parse_cmd_argv() Unable to get token from string %s\n", str);
 			goto CLEANUP;
 		}
@@ -473,12 +534,13 @@ char **parse_cmd_argv(char *str) {
 	//
 	ok = true;
 
-	CLEANUP:
+CLEANUP:
 
 	//
 	// free memory if an error occurs
 	//
-	if (!ok) {
+	if (!ok)
+	{
 		free_cmd_argv(argv);
 		return NULL;
 	}
@@ -497,7 +559,8 @@ char **parse_cmd_argv(char *str) {
  * while((word = str_token(&ptr, ' ')) != NULL) {...}
  **************************************************************************/
 
-char *str_token(char **ptr, const char c) {
+char *str_token(char **ptr, const char c)
+{
 
 	print_debug("str_token() Called with: '%s'\n", *ptr);
 
@@ -507,17 +570,20 @@ char *str_token(char **ptr, const char c) {
 	// Check if the function is called with the end of the string. This means
 	// we have processed the whole string and return NULL.
 	//
-	if ((*result) == '\0') {
+	if ((*result) == '\0')
+	{
 		return NULL;
 	}
 
-	while (true) {
+	while (true)
+	{
 
 		//
 		// We reached the end of the string, but due to the initial '\0' test
 		// above we know that this is the last, not-empty word of the string.
 		//
-		if ((**ptr) == '\0') {
+		if ((**ptr) == '\0')
+		{
 			break;
 		}
 
@@ -525,7 +591,8 @@ char *str_token(char **ptr, const char c) {
 		// if we found the delimiter we replace it with the terminating \0
 		// and increment the pointer for the next round.
 		//
-		if ((**ptr) == c) {
+		if ((**ptr) == c)
+		{
 			(**ptr) = '\0';
 			(*ptr)++;
 			break;
@@ -547,16 +614,19 @@ char *str_token(char **ptr, const char c) {
  * can be used to see if the binaries are manipulated.
  **************************************************************************/
 
-bool get_program_path(char *buffer, const size_t size) {
+bool get_program_path(char *buffer, const size_t size)
+{
 
 	const ssize_t len = readlink("/proc/self/exe", buffer, size - 1);
 
-	if (len == -1) {
+	if (len == -1)
+	{
 		print_error("get_program_path() Reading '/proc/self/exe' failed: %s\n", strerror(errno));
 		return false;
 	}
 
-	if ((size_t) len > size - 1) {
+	if ((size_t)len > size - 1)
+	{
 		print_error("get_program_path() Buffer to small: %zu required: %zu\n", size, len);
 		return false;
 	}
@@ -574,7 +644,9 @@ bool get_program_path(char *buffer, const size_t size) {
  * The function returns a uid for a user represented by its name.
  **************************************************************************/
 
-bool get_userid_from_name(const char *name, uid_t *uid) {
+bool get_userid_from_name(const char *name, uid_t *uid)
+{
+
 	struct passwd pwd;
 	struct passwd *result;
 	char buffer[BUFFER_SIZE];
@@ -584,17 +656,19 @@ bool get_userid_from_name(const char *name, uid_t *uid) {
 	//
 	// if the result is NULL something is wrong
 	//
-	if (result == NULL) {
+	if (result == NULL)
+	{
 		if (err_no == 0)
 			print_error("get_userid_from_name() User id for name: %s not found!\n", name);
-		else {
+		else
+		{
 			print_error("get_userid_from_name() Getting name: %s failed: %s\n", name, strerror(err_no));
 		}
 		return false;
 	}
 
 	*uid = pwd.pw_uid;
-	print_debug("get_userid_from_name() Name: %s uid: %ld\n", name, (long) *uid);
+	print_debug("get_userid_from_name() Name: %s uid: %ld\n", name, (long)*uid);
 
 	return true;
 }
