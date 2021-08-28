@@ -8,13 +8,15 @@
 #ifndef SH_COMMONS_H_
 #define SH_COMMONS_H_
 
+#include <stdio.h>
+
 //
 // definition of the print_debug macro.
 //
 #ifdef DEBUG
 #define DEBUG_OUT stdout
 #define print_debug(fmt, ...) fprintf(DEBUG_OUT, "DEBUG - " fmt, ##__VA_ARGS__)
-#define print_debug_str(fmt)  fprintf(DEBUG_OUT, "DEBUG - " fmt)
+#define print_debug_str(fmt) fprintf(DEBUG_OUT, "DEBUG - " fmt)
 #else
 #define print_debug(fmt, ...)
 #define print_debug_str(fmt)
@@ -24,7 +26,7 @@
 // definition of the print_error macro
 //
 #define print_error(fmt, ...) fprintf(stderr, "ERROR - " fmt, ##__VA_ARGS__)
-#define print_error_str(fmt)  fprintf(stderr, "ERROR - " fmt)
+#define print_error_str(fmt) fprintf(stderr, "ERROR - " fmt)
 
 //
 // default buffer size
