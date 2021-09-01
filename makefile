@@ -14,6 +14,18 @@ BIN_DIR = bin
 CC = gcc
 
 ################################################################################
+# 
+################################################################################
+
+LIBGCRYPT-CONFIG=libgcrypt-config
+
+#ifeq ($(libgcrypt-prefix),)
+#  
+#else
+#  LIBGCRYPT-CONFIG=$(libgcrypt-prefix)/bin/libgcrypt-config
+#endif
+
+################################################################################
 # A variable that collects the optional flags.
 ################################################################################
 
@@ -59,9 +71,9 @@ OPTION_FLAGS += -std=c11
 # Set flags and libs
 ############################################################################
 
-CFLAGS =  $(OPTION_FLAGS) -O2 -I$(INC_DIR) $(shell libgcrypt-config --cflags)
+CFLAGS =  $(OPTION_FLAGS) -O2 -I$(INC_DIR) $(shell $(LIBGCRYPT-CONFIG) --cflags)
 
-LIBS   = $(shell libgcrypt-config --libs)
+LIBS   = $(shell $(LIBGCRYPT-CONFIG) --libs)
 
 ############################################################################
 # Definition of the project files.
