@@ -2,7 +2,7 @@
 
 ## Description
 
-sec_handover is a program that tries to handover a password to a program in a secure way.
+`sec_handover` is a program that tries to handover a password to a program in a secure way.
 This is best explained with an example.
 
 ## Example
@@ -84,10 +84,14 @@ make secure
 The first call builds the program. During the build process an AES key is created and compiled into the program. The
 source files of the key are removed in the second step.
 
+## Docker example for centos
+
+The docker directory contains a docker file. The docker file is a working description, which shows how to
+install `libgcrypt` on centos with form sources. It shows how to build `sec_handover` with this installation
+and how to compile `sec_handover` static.
+
 ## TODO's
 
 - Allow dynamic arguments on the launch call like `./sec_handover -l /tmp/example.launch arg3 arg4`
 - Consider environment variables.
 - Allow a switch user to a user for the execv call.
-
-## MISC
