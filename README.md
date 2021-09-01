@@ -87,8 +87,8 @@ source files of the key are removed in the second step.
 ## Docker example for centos
 
 The docker directory contains a docker file. The docker file is a working description, which shows how to
-install `libgcrypt` on centos with form sources. It shows how to build `sec_handover` with this installation
-and how to compile `sec_handover` static.
+install `libgcrypt` on centos with form its sources. It shows how to build `sec_handover` with this installation
+and how to compile `sec_handover` statically.
 
 ## TODO's
 
