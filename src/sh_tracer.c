@@ -22,20 +22,23 @@
  * The function waits for a child process to change the state.
  **************************************************************************/
 
-static void wait_for_child(const char *id_parent, const pid_t pid_child, const char *id_child) {
+static void wait_for_child(const char *id_parent, const pid_t pid_child, const char *id_child)
+{
 	int status;
 
 	char prefix[SMALL_BUFFER_SIZE];
 	snprintf(prefix, SMALL_BUFFER_SIZE, "Process: '%s' with: %d child: '%s' with: %d", id_parent, getpid(), id_child, pid_child);
 
-	do {
+	do
+	{
 
 		//
 		// wait for the child process to have a state change
 		//
 		printf("%s - Waiting for state change\n", prefix);
 
-		if (waitpid(pid_child, &status, 0) == -1) {
+		if (waitpid(pid_child, &status, 0) == -1)
+		{
 			fprintf(stderr, "%s - Waitpid failed: %s\n", prefix, strerror(errno));
 			exit(EXIT_FAILURE);
 		}
@@ -43,7 +46,8 @@ static void wait_for_child(const char *id_parent, const pid_t pid_child, const c
 		//
 		// if the child process has not terminated we call ptrace PTRACE_CONT
 		//
-		if (!WIFEXITED(status) && ptrace(PTRACE_CONT, pid_child, NULL, NULL) == -1) {
+		if (!WIFEXITED(status) && ptrace(PTRACE_CONT, pid_child, NULL, NULL) == -1)
+		{
 			fprintf(stderr, "%s - Calling ptrace with  PTRACE_CONT failed: %s\n", prefix, strerror(errno));
 			exit(EXIT_FAILURE);
 		}
@@ -59,7 +63,8 @@ static void wait_for_child(const char *id_parent, const pid_t pid_child, const c
  * The program is a test program for the ptrace structure.
  **************************************************************************/
 
-int main() {
+int main()
+{
 
 	pid_t pid_child;
 
@@ -68,7 +73,8 @@ int main() {
 	//
 	// fork the process
 	//
-	if ((pid_child = fork()) == -1) {
+	if ((pid_child = fork()) == -1)
+	{
 		fprintf(stderr, "Unable to fork a new process: %s\n", strerror(errno));
 		exit(EXIT_FAILURE);
 	}
@@ -76,11 +82,13 @@ int main() {
 	//
 	// child
 	//
-	if (pid_child == 0) {
+	if (pid_child == 0)
+	{
 
 		printf("Started 'child' with pid : %d\n", getpid());
 
-		if (ptrace(PTRACE_TRACEME) == -1) {
+		if (ptrace(PTRACE_TRACEME) == -1)
+		{
 			fprintf(stderr, "Unable to trace main: %s\n", strerror(errno));
 			exit(EXIT_FAILURE);
 		}
@@ -90,7 +98,8 @@ int main() {
 		//
 		// fork the process
 		//
-		if ((pid_child_child = fork()) == -1) {
+		if ((pid_child_child = fork()) == -1)
+		{
 			fprintf(stderr, "Unable to fork a new process: %s\n", strerror(errno));
 			exit(EXIT_FAILURE);
 		}
@@ -98,9 +107,11 @@ int main() {
 		//
 		// child child
 		//
-		if (pid_child_child == 0) {
+		if (pid_child_child == 0)
+		{
 
-			for (int i = 0; i < 10; i++) {
+			for (int i = 0; i < 10; i++)
+			{
 				printf("Process: 'child-child' pid: %d is alive\n", getpid());
 				sleep(2);
 			}
@@ -108,7 +119,9 @@ int main() {
 			//
 			// parent child
 			//
-		} else {
+		}
+		else
+		{
 			wait_for_child("child", pid_child_child, "child-child");
 		}
 
@@ -118,10 +131,11 @@ int main() {
 		//
 		// parent (main)
 		//
-	} else {
+	}
+	else
+	{
 		wait_for_child("main", pid_child, "child");
 	}
 
 	exit(EXIT_SUCCESS);
-
 }

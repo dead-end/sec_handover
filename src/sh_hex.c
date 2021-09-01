@@ -19,14 +19,17 @@ static const char hex_map[] = "0123456789abcdef";
  * parameter u_char to a value 0 ... 16.
  **************************************************************************/
 
-static bool hex_char_to_u_char(const char hex_char, unsigned char *u_char) {
+static bool hex_char_to_u_char(const char hex_char, unsigned char *u_char)
+{
 
-	if (hex_char >= 'a' && hex_char <= 'f') {
+	if (hex_char >= 'a' && hex_char <= 'f')
+	{
 		*u_char = hex_char - 'a' + 10;
 		return true;
 	}
 
-	if (hex_char >= '0' && hex_char <= '9') {
+	if (hex_char >= '0' && hex_char <= '9')
+	{
 		*u_char = hex_char - '0';
 		return true;
 	}
@@ -46,17 +49,20 @@ static bool hex_char_to_u_char(const char hex_char, unsigned char *u_char) {
  * macro sh_hex_get_array_len(hex).
  **************************************************************************/
 
-bool sh_hex_hex_to_array(const char *hex, unsigned char *array, size_t array_len) {
+bool sh_hex_hex_to_array(const char *hex, unsigned char *array, size_t array_len)
+{
 
 	const char *ptr = hex;
 	unsigned char uchar;
 
-	for (size_t i = 0; i < array_len; i++) {
+	for (size_t i = 0; i < array_len; i++)
+	{
 
 		//
 		// set the upper 4 bits
 		//
-		if (!hex_char_to_u_char(*ptr++, &uchar)) {
+		if (!hex_char_to_u_char(*ptr++, &uchar))
+		{
 			print_error("sh_hex_hex_to_array() Invalid hex string: %s (index: %zu)\n", hex, i);
 			return false;
 		}
@@ -66,7 +72,8 @@ bool sh_hex_hex_to_array(const char *hex, unsigned char *array, size_t array_len
 		//
 		// set the lower 4 bits
 		//
-		if (!hex_char_to_u_char(*ptr++, &uchar)) {
+		if (!hex_char_to_u_char(*ptr++, &uchar))
+		{
 			print_error("sh_hex_hex_to_array() Invalid hex string: %s (index: %zu)\n", hex, i);
 			return false;
 		}
@@ -84,11 +91,13 @@ bool sh_hex_hex_to_array(const char *hex, unsigned char *array, size_t array_len
  * sh_hex_get_hex_len(array).
  **************************************************************************/
 
-void sh_hex_array_to_hex(const unsigned char *array, const size_t array_len, char *hex) {
+void sh_hex_array_to_hex(const unsigned char *array, const size_t array_len, char *hex)
+{
 
 	char *ptr = hex;
 
-	for (size_t i = 0; i < array_len; i++) {
+	for (size_t i = 0; i < array_len; i++)
+	{
 
 		//
 		// char for the upper 4 bits

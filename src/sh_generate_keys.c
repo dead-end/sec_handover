@@ -21,13 +21,15 @@
  * file. It adds a newline after BLOCK_SIZE bytes.
  **************************************************************************/
 
-static bool print_random_bytes(FILE *file, const size_t num_bytes) {
+static bool print_random_bytes(FILE *file, const size_t num_bytes)
+{
 	int modulo;
 
 	//
 	// ensure that the number of bytes is a multiple of the block size
 	//
-	if (num_bytes % BLOCK_SIZE != 0) {
+	if (num_bytes % BLOCK_SIZE != 0)
+	{
 		print_error("print_random_bytes() Invalid size %zu\n", num_bytes);
 		return false;
 	}
@@ -37,13 +39,15 @@ static bool print_random_bytes(FILE *file, const size_t num_bytes) {
 	//
 	unsigned char *random = gcry_random_bytes_secure(num_bytes, GCRY_STRONG_RANDOM);
 
-	for (size_t i = 0; i < num_bytes; i++) {
+	for (size_t i = 0; i < num_bytes; i++)
+	{
 		modulo = i % BLOCK_SIZE;
 
 		//
 		// add indentation
 		//
-		if (modulo == 0) {
+		if (modulo == 0)
+		{
 			fprintf(file, "  ");
 		}
 
@@ -52,14 +56,16 @@ static bool print_random_bytes(FILE *file, const size_t num_bytes) {
 		//
 		fprintf(file, "0x%02x", random[i]);
 
-		if (i < num_bytes - 1) {
+		if (i < num_bytes - 1)
+		{
 			fprintf(file, ", ");
 		}
 
 		//
 		// add newline at the end of the block
 		//
-		if (modulo == BLOCK_SIZE - 1) {
+		if (modulo == BLOCK_SIZE - 1)
+		{
 			fprintf(file, "\n");
 		}
 	}
@@ -73,12 +79,14 @@ static bool print_random_bytes(FILE *file, const size_t num_bytes) {
  * The function writes the source file with the two keys.
  **************************************************************************/
 
-static void genereate_keys_file(const char *file_name, const size_t cipher_key_len, const size_t hmac_key_len) {
+static void genereate_keys_file(const char *file_name, const size_t cipher_key_len, const size_t hmac_key_len)
+{
 	FILE *file;
 	time_t rawtime;
 
 	file = fopen(file_name, "w+");
-	if (file == NULL) {
+	if (file == NULL)
+	{
 		print_error("genereate_keys_file() Unable to open file %s due to: %s\n", file_name, strerror(errno));
 		exit(EXIT_FAILURE);
 	}
@@ -110,9 +118,11 @@ static void genereate_keys_file(const char *file_name, const size_t cipher_key_l
  * created.
  **************************************************************************/
 
-int main(const int argc, const char *argv[]) {
+int main(const int argc, const char *argv[])
+{
 
-	if (argc != 2) {
+	if (argc != 2)
+	{
 		print_error_str("main() Usage: sh_generate_keys <sh_generated_keys.c>");
 		return EXIT_FAILURE;
 	}

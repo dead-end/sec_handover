@@ -28,7 +28,8 @@
  * context handle, which has to be closed if it not used anymore.
  **************************************************************************/
 
-static bool init_cipher_handle(gcry_cipher_hd_t *cipher_handle, const unsigned char *key, unsigned char *init_vector) {
+static bool init_cipher_handle(gcry_cipher_hd_t *cipher_handle, const unsigned char *key, unsigned char *init_vector)
+{
 	gcry_error_t error;
 
 	//
@@ -36,7 +37,8 @@ static bool init_cipher_handle(gcry_cipher_hd_t *cipher_handle, const unsigned c
 	// mode and the flags are passed in as constants.
 	//
 	error = gcry_cipher_open(cipher_handle, CIPHER_ID, CIPHER_MODE, CIPHER_FLAGS);
-	if (error) {
+	if (error)
+	{
 		print_error("init_cipher_handle() Calling: gcry_cipher_open() failed: %s/%s\n", gcry_strsource(error), gcry_strerror(error));
 		return false;
 	}
@@ -45,7 +47,8 @@ static bool init_cipher_handle(gcry_cipher_hd_t *cipher_handle, const unsigned c
 	// Set the key used for encryption or decryption.
 	//
 	error = gcry_cipher_setkey(*cipher_handle, key, CIPHER_KEY_LEN);
-	if (error) {
+	if (error)
+	{
 		print_error("init_cipher_handle() Calling: gcry_cipher_setkey() failed: %s/%s\n", gcry_strsource(error), gcry_strerror(error));
 		return false;
 	}
@@ -55,7 +58,8 @@ static bool init_cipher_handle(gcry_cipher_hd_t *cipher_handle, const unsigned c
 	// size of the vector depends on the used cipher algorithm.
 	//
 	error = gcry_cipher_setiv(*cipher_handle, init_vector, CIPHER_BLOCK_LEN);
-	if (error) {
+	if (error)
+	{
 		print_error("init_cipher_handle() Calling: gcry_cipher_setiv() failed: %s/%s\n", gcry_strsource(error), gcry_strerror(error));
 		return false;
 	}
@@ -67,9 +71,11 @@ static bool init_cipher_handle(gcry_cipher_hd_t *cipher_handle, const unsigned c
  * The function closes the hmac handle if necessary.
  **************************************************************************/
 
-static void cleanup_hmac_handle(gcry_mac_hd_t *hmac_handle) {
+static void cleanup_hmac_handle(gcry_mac_hd_t *hmac_handle)
+{
 
-	if (*hmac_handle != NULL) {
+	if (*hmac_handle != NULL)
+	{
 		print_debug_str("cleanup_hmac_handle() Closing hmac handle\n");
 		gcry_mac_close(*hmac_handle);
 	}
@@ -80,14 +86,16 @@ static void cleanup_hmac_handle(gcry_mac_hd_t *hmac_handle) {
  * closed if it is not used anymore.
  **************************************************************************/
 
-static bool init_hmac_handle(gcry_mac_hd_t *hmac_handle) {
+static bool init_hmac_handle(gcry_mac_hd_t *hmac_handle)
+{
 	gcry_error_t error;
 
 	//
 	// create the hmac handle for the aglorithm.
 	//
 	error = gcry_mac_open(hmac_handle, HMAC_ID, HMAC_FLAGS, NULL);
-	if (error) {
+	if (error)
+	{
 		print_error("init_hmac_handle() Calling: gcry_mac_open() failed: %s/%s\n", gcry_strsource(error), gcry_strerror(error));
 		return false;
 	}
@@ -96,7 +104,8 @@ static bool init_hmac_handle(gcry_mac_hd_t *hmac_handle) {
 	// The cipher key is used for the hmac.
 	//
 	error = gcry_mac_setkey(*hmac_handle, hmac_key, HMAC_KEY_LEN);
-	if (error) {
+	if (error)
+	{
 		print_error("init_hmac_handle() Calling: gcry_mac_setkey() failed: %s/%s\n", gcry_strsource(error), gcry_strerror(error));
 		return false;
 	}
@@ -111,7 +120,8 @@ static bool init_hmac_handle(gcry_mac_hd_t *hmac_handle) {
  * fseek call.
  **************************************************************************/
 
-static bool compute_hmac_over_file(FILE *file, unsigned char *hmac) {
+static bool compute_hmac_over_file(FILE *file, unsigned char *hmac)
+{
 	gcry_mac_hd_t hmac_handle = NULL;
 	gcry_error_t error;
 
@@ -122,7 +132,8 @@ static bool compute_hmac_over_file(FILE *file, unsigned char *hmac) {
 	//
 	// Set up the hmac handle (maybe not necessary for every file).
 	//
-	if (!init_hmac_handle(&hmac_handle)) {
+	if (!init_hmac_handle(&hmac_handle))
+	{
 		print_error_str("compute_hmac_over_file() Unable init hmac\n");
 		goto CLEANUP;
 	}
@@ -130,7 +141,8 @@ static bool compute_hmac_over_file(FILE *file, unsigned char *hmac) {
 	size_t read_bytes;
 	bool end = false;
 
-	while (!end) {
+	while (!end)
+	{
 		read_bytes = fread(buffer, 1, BUFFER_SIZE, file);
 
 		//
@@ -140,16 +152,20 @@ static bool compute_hmac_over_file(FILE *file, unsigned char *hmac) {
 		//
 		// If read bytes are less than expected there is the eof or an error.
 		//
-		if (read_bytes < BUFFER_SIZE) {
+		if (read_bytes < BUFFER_SIZE)
+		{
 
-			if (ferror(file) != 0) {
+			if (ferror(file) != 0)
+			{
 				print_error("compute_hmac_over_file() Calling fread() failed: %s\n", strerror(errno));
 				goto CLEANUP;
 
 				//
 				// No error, so we have the end of the file.
 				//
-			} else {
+			}
+			else
+			{
 				end = true;
 			}
 		}
@@ -158,7 +174,8 @@ static bool compute_hmac_over_file(FILE *file, unsigned char *hmac) {
 		// Add the bytes to the computation.
 		//
 		error = gcry_mac_write(hmac_handle, buffer, read_bytes);
-		if (error) {
+		if (error)
+		{
 			print_error("compute_hmac_over_file() Calling gcry_mac_write() failed: %s/%s\n", gcry_strsource(error), gcry_strerror(error));
 			goto CLEANUP;
 		}
@@ -170,7 +187,8 @@ static bool compute_hmac_over_file(FILE *file, unsigned char *hmac) {
 	// Read compute hmac to the array.
 	//
 	error = gcry_mac_read(hmac_handle, hmac, &hmac_len);
-	if (error) {
+	if (error)
+	{
 		print_error("compute_hmac_over_file() Calling gcry_mac_read() failed: %s/%s\n", gcry_strsource(error), gcry_strerror(error));
 		goto CLEANUP;
 	}
@@ -178,18 +196,18 @@ static bool compute_hmac_over_file(FILE *file, unsigned char *hmac) {
 	//
 	// Ensure that the mac has the correct size.
 	//
-	if (hmac_len != HMAC_LEN) {
+	if (hmac_len != HMAC_LEN)
+	{
 		print_error("compute_hmac_over_file() Expected hmac len: %d current hmac len: %zu\n", HMAC_LEN, hmac_len);
 		goto CLEANUP;
-
 	}
 
 	result = true;
 
-	//
-	// Cleanup allocated resources
-	//
-	CLEANUP:
+//
+// Cleanup allocated resources
+//
+CLEANUP:
 
 	cleanup_hmac_handle(&hmac_handle);
 
@@ -202,28 +220,31 @@ static bool compute_hmac_over_file(FILE *file, unsigned char *hmac) {
  * HMAC_LEN.
  **************************************************************************/
 
-bool sh_gc_compute_hmac(const char *filename, unsigned char *hmac) {
+bool sh_gc_compute_hmac(const char *filename, unsigned char *hmac)
+{
 
 	bool result = false;
 
 	FILE *file = fopen(filename, "r");
 
-	if (file == NULL) {
+	if (file == NULL)
+	{
 		print_error("sh_gc_compute_hmac() Unable to open file: %s due to: %s\n", filename, strerror(errno));
 		goto CLEANUP;
 	}
 
-	if (!compute_hmac_over_file(file, hmac)) {
+	if (!compute_hmac_over_file(file, hmac))
+	{
 		print_error("sh_gc_compute_hmac() Unable to compute hmac over file %s\n", filename);
 		goto CLEANUP;
 	}
 
 	result = true;
 
-	//
-	// Cleanup allocated resources
-	//
-	CLEANUP:
+//
+// Cleanup allocated resources
+//
+CLEANUP:
 
 	fclose_silent(file, filename);
 
@@ -238,14 +259,16 @@ bool sh_gc_compute_hmac(const char *filename, unsigned char *hmac) {
  * over the last part of the file. Then the two hmacs are compared.
  **************************************************************************/
 
-static bool check_hmacs_of_a_file(FILE *file) {
+static bool check_hmacs_of_a_file(FILE *file)
+{
 	unsigned char hmac_read[HMAC_LEN];
 	unsigned char hmac_computed[HMAC_LEN];
 
 	//
 	// Read the hmac from the beginning of the file.
 	//
-	if (!read_array_complete_from(file, hmac_read, HMAC_LEN, 0, SEEK_SET)) {
+	if (!read_array_complete_from(file, hmac_read, HMAC_LEN, 0, SEEK_SET))
+	{
 		print_error_str("check_hmacs_of_a_file() Unable to read hmac from file!\n");
 		return false;
 	}
@@ -253,7 +276,8 @@ static bool check_hmacs_of_a_file(FILE *file) {
 	//
 	// Position the file to the encrypted data to compute a hmac on it.
 	//
-	if (fseek(file, CIPHER_BLOCK_LEN + HMAC_LEN, SEEK_SET) != 0) {
+	if (fseek(file, CIPHER_BLOCK_LEN + HMAC_LEN, SEEK_SET) != 0)
+	{
 		print_error("check_hmacs_of_a_file() fseek failed due to: %s\n", strerror(errno));
 		return false;
 	}
@@ -261,7 +285,8 @@ static bool check_hmacs_of_a_file(FILE *file) {
 	//
 	// Compute hmac over the encrypted data.
 	//
-	if (!compute_hmac_over_file(file, hmac_computed)) {
+	if (!compute_hmac_over_file(file, hmac_computed))
+	{
 		print_error_str("check_hmacs_of_a_file() Unable to compute hmac from file!\n");
 		return false;
 	}
@@ -269,7 +294,8 @@ static bool check_hmacs_of_a_file(FILE *file) {
 	//
 	// Compare the two hmacs.
 	//
-	if (memcmp(hmac_read, hmac_computed, HMAC_LEN) != 0) {
+	if (memcmp(hmac_read, hmac_computed, HMAC_LEN) != 0)
+	{
 
 #ifdef DEBUG
 		debug_print_block("check_hmacs_of_a_file() hmac_read", hmac_read, HMAC_LEN, PRINT_BLOCK_LINE);
@@ -289,13 +315,15 @@ static bool check_hmacs_of_a_file(FILE *file) {
  * is the encrypted data.
  **************************************************************************/
 
-static bool write_hmac_to_file(crypt_ctx *ctx) {
+static bool write_hmac_to_file(crypt_ctx *ctx)
+{
 	unsigned char hmac[HMAC_LEN];
 
 	//
 	// Position the file to the encrypted data to compute a hmac on it.
 	//
-	if (fseek(ctx->file, CIPHER_BLOCK_LEN + HMAC_LEN, SEEK_SET) != 0) {
+	if (fseek(ctx->file, CIPHER_BLOCK_LEN + HMAC_LEN, SEEK_SET) != 0)
+	{
 		print_error("write_hmac_to_file() fseek failed due to: %s\n", strerror(errno));
 		return false;
 	}
@@ -303,7 +331,8 @@ static bool write_hmac_to_file(crypt_ctx *ctx) {
 	//
 	// Compute hmac over the encrypted data.
 	//
-	if (!compute_hmac_over_file(ctx->file, hmac)) {
+	if (!compute_hmac_over_file(ctx->file, hmac))
+	{
 		print_error("write_hmac_to_file() Unable to compute hmac from: %s\n", ctx->file_name);
 		return false;
 	}
@@ -311,7 +340,8 @@ static bool write_hmac_to_file(crypt_ctx *ctx) {
 	//
 	// Write the computed hmac to the beginning of the file.
 	//
-	if (!write_array_to(ctx->file, hmac, HMAC_LEN, 0, SEEK_SET)) {
+	if (!write_array_to(ctx->file, hmac, HMAC_LEN, 0, SEEK_SET))
+	{
 		print_error("write_hmac_to_file() Unable to write hmac to file: %s\n", ctx->file_name);
 		return false;
 	}
@@ -325,7 +355,8 @@ static bool write_hmac_to_file(crypt_ctx *ctx) {
  * of the cipher algorithm.
  **************************************************************************/
 
-static bool encrypt_and_write_to_file(crypt_ctx *ctx, char *buffer, const size_t size) {
+static bool encrypt_and_write_to_file(crypt_ctx *ctx, char *buffer, const size_t size)
+{
 	gcry_error_t error;
 
 #ifdef DEBUG
@@ -336,7 +367,8 @@ static bool encrypt_and_write_to_file(crypt_ctx *ctx, char *buffer, const size_t
 	// Encrypt the buffer in place.
 	//
 	error = gcry_cipher_encrypt(ctx->cipher_handle, buffer, size, NULL, 0);
-	if (error) {
+	if (error)
+	{
 		print_error("encrypt_and_write_to_file() Calling gcry_cipher_encrypt failed: %s/%s\n", gcry_strsource(error), gcry_strerror(error));
 		return false;
 	}
@@ -344,7 +376,8 @@ static bool encrypt_and_write_to_file(crypt_ctx *ctx, char *buffer, const size_t
 	//
 	// Write the encrypted buffer to the file.
 	//
-	if (!write_array(ctx->file, buffer, size)) {
+	if (!write_array(ctx->file, buffer, size))
+	{
 		print_error("encrypt_and_write_to_file() Unable to write to file: %s.\n", ctx->file_name);
 		return false;
 	}
@@ -358,12 +391,14 @@ static bool encrypt_and_write_to_file(crypt_ctx *ctx, char *buffer, const size_t
  * the output file.
  **************************************************************************/
 
-bool sh_gc_write(crypt_ctx *ctx, const char *bytes, const size_t size) {
+bool sh_gc_write(crypt_ctx *ctx, const char *bytes, const size_t size)
+{
 
 	//
 	// Ensure that the bytes to write are not larger than max line.
 	//
-	if (size > MAX_LINE) {
+	if (size > MAX_LINE)
+	{
 		print_error("crypt_file_write() Buffer to large: %zu\n", size);
 		return false;
 	}
@@ -378,9 +413,11 @@ bool sh_gc_write(crypt_ctx *ctx, const char *bytes, const size_t size) {
 	// If the buffer contains more than MAX_LINE bytes to write, we encrypt
 	// MAX_LINE bytes.
 	//
-	if (ctx->ptr - ctx->buffer >= MAX_LINE) {
+	if (ctx->ptr - ctx->buffer >= MAX_LINE)
+	{
 
-		if (!encrypt_and_write_to_file(ctx, ctx->buffer, MAX_LINE)) {
+		if (!encrypt_and_write_to_file(ctx, ctx->buffer, MAX_LINE))
+		{
 			print_error_str("sh_gc_write() Calling crypt_file_encrypt_write() failed\n");
 			return false;
 		}
@@ -404,7 +441,8 @@ bool sh_gc_write(crypt_ctx *ctx, const char *bytes, const size_t size) {
  * including the padding and computes the hmac over the data.
  **************************************************************************/
 
-bool sh_gc_finish_write(crypt_ctx *ctx) {
+bool sh_gc_finish_write(crypt_ctx *ctx)
+{
 	const size_t index = ctx->ptr - ctx->buffer;
 
 	//
@@ -421,14 +459,15 @@ bool sh_gc_finish_write(crypt_ctx *ctx) {
 	//
 	// Write the padding bytes to the last byte in the buffer.
 	//
-	ctx->buffer[write_bytes - 1] = (unsigned char) padding_bytes;
+	ctx->buffer[write_bytes - 1] = (unsigned char)padding_bytes;
 
 	print_debug("sh_gc_finish_write() bytes: %zu padding: %zu total: %zu\n", index, padding_bytes, write_bytes);
 
 	//
 	// Encrypt and write the result.
 	//
-	if (!encrypt_and_write_to_file(ctx, ctx->buffer, write_bytes)) {
+	if (!encrypt_and_write_to_file(ctx, ctx->buffer, write_bytes))
+	{
 		print_error_str("sh_gc_finish_write() Unable to write rest of the buffer\n");
 		return false;
 	}
@@ -436,7 +475,8 @@ bool sh_gc_finish_write(crypt_ctx *ctx) {
 	//
 	// Compute the hmac over the encrypted data and save it to the file.
 	//
-	if (!write_hmac_to_file(ctx)) {
+	if (!write_hmac_to_file(ctx))
+	{
 		print_error_str("sh_gc_finish_write() Unable to write the hmac\n");
 		return false;
 	}
@@ -453,14 +493,16 @@ bool sh_gc_finish_write(crypt_ctx *ctx) {
  * and 'data\0'. So the original data cannot be completely restored.
  **************************************************************************/
 
-bool sh_gc_readline(crypt_ctx *ctx, char **line) {
+bool sh_gc_readline(crypt_ctx *ctx, char **line)
+{
 	char *next;
 
 	//
 	// If the current pointer points to the end of the string, we are
 	// finished.
 	//
-	if (*ctx->ptr == '\0') {
+	if (*ctx->ptr == '\0')
+	{
 		return false;
 	}
 
@@ -477,14 +519,17 @@ bool sh_gc_readline(crypt_ctx *ctx, char **line) {
 	//
 	// If next is null it is the last line.
 	//
-	if (*next == '\0') {
+	if (*next == '\0')
+	{
 		ctx->ptr = next;
 
 		//
 		// Set the null terminator for the current line and set ptr to the next
 		// line start which may be the terminator null of the whole string.
 		//
-	} else {
+	}
+	else
+	{
 		*next = '\0';
 		ctx->ptr = next + 1;
 	}
@@ -498,7 +543,8 @@ bool sh_gc_readline(crypt_ctx *ctx, char **line) {
  * return it line by line.
  **************************************************************************/
 
-bool sh_gc_decrypt_data(crypt_ctx *ctx) {
+bool sh_gc_decrypt_data(crypt_ctx *ctx)
+{
 
 	gcry_error_t error;
 	size_t encrypted_data_size;
@@ -507,7 +553,8 @@ bool sh_gc_decrypt_data(crypt_ctx *ctx) {
 	// Get the size of the encrypted data, which is the file size minus
 	// the initialization vector and the hmac.
 	//
-	if (!get_file_size(fileno(ctx->file), &encrypted_data_size)) {
+	if (!get_file_size(fileno(ctx->file), &encrypted_data_size))
+	{
 		print_error("sh_gc_decrypt_data() Unable to get size of file: %s\n", ctx->file_name);
 		return false;
 	}
@@ -518,7 +565,8 @@ bool sh_gc_decrypt_data(crypt_ctx *ctx) {
 	// Ensure that the encrypted data size is a multiple of the cipher
 	// block size.
 	//
-	if (encrypted_data_size % CIPHER_BLOCK_LEN != 0) {
+	if (encrypted_data_size % CIPHER_BLOCK_LEN != 0)
+	{
 		print_error("sh_gc_decrypt_data() Invalid file size %lu\n", encrypted_data_size);
 		return false;
 	}
@@ -528,7 +576,8 @@ bool sh_gc_decrypt_data(crypt_ctx *ctx) {
 	//
 	ctx->buffer = malloc(encrypted_data_size);
 
-	if (ctx->buffer == NULL) {
+	if (ctx->buffer == NULL)
+	{
 		print_error_str("sh_gc_decrypt_data() Unable to allocate memory.\n");
 		return false;
 	}
@@ -538,7 +587,8 @@ bool sh_gc_decrypt_data(crypt_ctx *ctx) {
 	//
 	// Read the complete file to the buffer.
 	//
-	if (!read_array_complete(ctx->file, ctx->buffer, encrypted_data_size)) {
+	if (!read_array_complete(ctx->file, ctx->buffer, encrypted_data_size))
+	{
 		print_error_str("sh_gc_decrypt_data() Unable to read array!\n");
 		return false;
 	}
@@ -547,7 +597,8 @@ bool sh_gc_decrypt_data(crypt_ctx *ctx) {
 	// Decrypt the buffer content inplace.
 	//
 	error = gcry_cipher_decrypt(ctx->cipher_handle, ctx->buffer, encrypted_data_size, NULL, 0);
-	if (error) {
+	if (error)
+	{
 		print_error("sh_gc_decrypt_data() Calling: gcry_cipher_decrypt() failed: %s/%s\n", gcry_strsource(error), gcry_strerror(error));
 		return false;
 	}
@@ -572,7 +623,8 @@ bool sh_gc_decrypt_data(crypt_ctx *ctx) {
  * and decryption, so the sizes of the buffer differ in the different cases.
  **************************************************************************/
 
-bool sh_gc_open_encrypt(crypt_ctx *ctx, const char *file_name) {
+bool sh_gc_open_encrypt(crypt_ctx *ctx, const char *file_name)
+{
 	unsigned char init_vector[CIPHER_BLOCK_LEN];
 
 	//
@@ -581,7 +633,8 @@ bool sh_gc_open_encrypt(crypt_ctx *ctx, const char *file_name) {
 	ctx->file_name = file_name;
 
 	ctx->file = fopen(file_name, "wb+");
-	if (ctx->file == NULL) {
+	if (ctx->file == NULL)
+	{
 		print_error("sh_gc_open_encrypt() Unable to open file %s due to: %s\n", ctx->file_name, strerror(errno));
 		return false;
 	}
@@ -595,7 +648,8 @@ bool sh_gc_open_encrypt(crypt_ctx *ctx, const char *file_name) {
 	// Write the initialization vector to the file, after the hmac and before the
 	// encrypted data.
 	//
-	if (!write_array_to(ctx->file, init_vector, CIPHER_BLOCK_LEN, HMAC_LEN, SEEK_SET)) {
+	if (!write_array_to(ctx->file, init_vector, CIPHER_BLOCK_LEN, HMAC_LEN, SEEK_SET))
+	{
 		print_error("sh_gc_open_encrypt() Unable to write initialization vector to file: %s\n", ctx->file_name);
 		return false;
 	}
@@ -603,7 +657,8 @@ bool sh_gc_open_encrypt(crypt_ctx *ctx, const char *file_name) {
 	//
 	// Initialize the cipher handle for encryption.
 	//
-	if (!init_cipher_handle(&ctx->cipher_handle, cipher_key, init_vector)) {
+	if (!init_cipher_handle(&ctx->cipher_handle, cipher_key, init_vector))
+	{
 		print_error_str("sh_gc_open_encrypt() Unable initialize cipher.\n");
 		return false;
 	}
@@ -613,7 +668,8 @@ bool sh_gc_open_encrypt(crypt_ctx *ctx, const char *file_name) {
 	// file.
 	//
 	ctx->buffer = malloc(2 * MAX_LINE);
-	if (ctx->buffer == NULL) {
+	if (ctx->buffer == NULL)
+	{
 		print_error_str("sh_gc_open_encrypt() Unable to allocate memory.\n");
 		return false;
 	}
@@ -630,7 +686,8 @@ bool sh_gc_open_encrypt(crypt_ctx *ctx, const char *file_name) {
  * a cipher handle.
  **************************************************************************/
 
-bool sh_gc_open_decrypt(crypt_ctx *ctx, const char *file_name) {
+bool sh_gc_open_decrypt(crypt_ctx *ctx, const char *file_name)
+{
 	unsigned char init_vector[CIPHER_BLOCK_LEN];
 
 	//
@@ -639,7 +696,8 @@ bool sh_gc_open_decrypt(crypt_ctx *ctx, const char *file_name) {
 	ctx->file_name = file_name;
 
 	ctx->file = fopen(file_name, "rb");
-	if (ctx->file == NULL) {
+	if (ctx->file == NULL)
+	{
 		print_error("sh_gc_open_decrypt() Unable to open file %s due to: %s\n", ctx->file_name, strerror(errno));
 		return false;
 	}
@@ -647,7 +705,8 @@ bool sh_gc_open_decrypt(crypt_ctx *ctx, const char *file_name) {
 	//
 	// Check the hmac to ensure that we encrypted the file.
 	//
-	if (!check_hmacs_of_a_file(ctx->file)) {
+	if (!check_hmacs_of_a_file(ctx->file))
+	{
 		print_error("sh_gc_open_decrypt() Comparing hmacs failed for file: %s\n", ctx->file_name);
 		return false;
 	}
@@ -655,7 +714,8 @@ bool sh_gc_open_decrypt(crypt_ctx *ctx, const char *file_name) {
 	//
 	// Read the initialization vector from the file.
 	//
-	if (!read_array_complete_from(ctx->file, init_vector, CIPHER_BLOCK_LEN, HMAC_LEN, SEEK_SET)) {
+	if (!read_array_complete_from(ctx->file, init_vector, CIPHER_BLOCK_LEN, HMAC_LEN, SEEK_SET))
+	{
 		print_error("sh_gc_open_decrypt() Unable to read initialization vector from: %s\n", ctx->file_name);
 		return false;
 	}
@@ -663,7 +723,8 @@ bool sh_gc_open_decrypt(crypt_ctx *ctx, const char *file_name) {
 	//
 	// Initialize the cipher handle for decryption.
 	//
-	if (!init_cipher_handle(&ctx->cipher_handle, cipher_key, init_vector)) {
+	if (!init_cipher_handle(&ctx->cipher_handle, cipher_key, init_vector))
+	{
 		print_error_str("sh_gc_open_decrypt() Unable to initialize cipher!\n");
 		return false;
 	}
@@ -676,24 +737,29 @@ bool sh_gc_open_decrypt(crypt_ctx *ctx, const char *file_name) {
  * application. The cleanup has no error handling.
  **************************************************************************/
 
-void sh_gc_close(crypt_ctx *ctx) {
+void sh_gc_close(crypt_ctx *ctx)
+{
 
-	if (ctx == NULL) {
+	if (ctx == NULL)
+	{
 		print_debug_str("sh_gc_close() Nothing to do.\n");
 		return;
 	}
 
-	if ((ctx->cipher_handle) != NULL) {
+	if ((ctx->cipher_handle) != NULL)
+	{
 		print_debug("sh_gc_close() Closing cipher handle for file: %s\n", ctx->file_name);
 		gcry_cipher_close((ctx->cipher_handle));
 	}
 
-	if (ctx->file != NULL) {
+	if (ctx->file != NULL)
+	{
 		print_debug("sh_gc_close() Closing file: %s\n", ctx->file_name);
 		fclose(ctx->file);
 	}
 
-	if (ctx->buffer != NULL) {
+	if (ctx->buffer != NULL)
+	{
 		print_debug_str("sh_gc_close() Freeing buffer.\n");
 		free(ctx->buffer);
 	}
