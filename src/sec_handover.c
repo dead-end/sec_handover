@@ -2,6 +2,7 @@
  * sec_handover.c
  *
  *  Created on: Aug 12, 2017
+ * 
  *      Author: dead-end
  **************************************************************************/
 
@@ -35,7 +36,8 @@
  * The struct contains the parsed arguments.
  **************************************************************************/
 
-typedef struct {
+typedef struct
+{
 
 	//
 	// The name of the unencrypted configuration file. In launch mode the
@@ -67,13 +69,15 @@ typedef struct {
  * The function sets ulimit to 0 to avoid core dumps.
  **************************************************************************/
 
-static bool avoid_coredumps() {
+static bool avoid_coredumps()
+{
 	struct rlimit struct_rlimit;
 
 	struct_rlimit.rlim_cur = 0;
 	struct_rlimit.rlim_max = 0;
 
-	if (setrlimit(RLIMIT_CORE, &struct_rlimit) < 0) {
+	if (setrlimit(RLIMIT_CORE, &struct_rlimit) < 0)
+	{
 		print_error("avoid_coredumps() Setting ulimt to 0 failed: %s\n", strerror(errno));
 		return false;
 	}
@@ -87,11 +91,13 @@ static bool avoid_coredumps() {
  * manipulated, the config file cannot be decrypted.
  **************************************************************************/
 
-static bool init_keys() {
+static bool init_keys()
+{
 	char filename[BUFFER_SIZE];
 	unsigned char hmac[HMAC_LEN];
 
-	if (!get_program_path(filename, BUFFER_SIZE)) {
+	if (!get_program_path(filename, BUFFER_SIZE))
+	{
 		print_error_str("init_keys() Unable to get program path\n");
 		return false;
 	}
@@ -99,16 +105,19 @@ static bool init_keys() {
 	//
 	// compute the hash (bin) for the file
 	//
-	if (!sh_gc_compute_hmac(filename, hmac)) {
+	if (!sh_gc_compute_hmac(filename, hmac))
+	{
 		print_error("init_keys() Unable to compute hmac over file: %s\n", filename);
 		return false;
 	}
 
-	for (int i = 0; i < CIPHER_KEY_LEN; i++) {
+	for (int i = 0; i < CIPHER_KEY_LEN; i++)
+	{
 		cipher_key[i] ^= hmac[i % HMAC_LEN];
 	}
 
-	for (int i = 0; i < HMAC_KEY_LEN; i++) {
+	for (int i = 0; i < HMAC_KEY_LEN; i++)
+	{
 		hmac_key[i] ^= hmac[i % HMAC_LEN];
 	}
 
@@ -120,13 +129,15 @@ static bool init_keys() {
  * the tailing newline is removed.
  **************************************************************************/
 
-static bool read_password(FILE *stream, char *password, const int size) {
+static bool read_password(FILE *stream, char *password, const int size)
+{
 	static struct termios actual, no_echo;
 
 	//
 	// get settings of the actual terminal
 	//
-	if (tcgetattr(fileno(stream), &actual) != 0) {
+	if (tcgetattr(fileno(stream), &actual) != 0)
+	{
 		print_error("read_password() Unable to get terminal attribute: %s\n", strerror(errno));
 		return false;
 	}
@@ -140,7 +151,8 @@ static bool read_password(FILE *stream, char *password, const int size) {
 	//
 	// set this as the new terminal options
 	//
-	if (tcsetattr(fileno(stream), TCSANOW, &no_echo) != 0) {
+	if (tcsetattr(fileno(stream), TCSANOW, &no_echo) != 0)
+	{
 		print_error("read_password() Unable to set terminal attribute: %s\n", strerror(errno));
 		return false;
 	}
@@ -148,7 +160,8 @@ static bool read_password(FILE *stream, char *password, const int size) {
 	//
 	// read the password from the stream
 	//
-	if (fgets(password, size, stdin) == NULL) {
+	if (fgets(password, size, stdin) == NULL)
+	{
 		print_error_str("read_password() Empty password is not allowed!\n");
 		return false;
 	}
@@ -161,7 +174,8 @@ static bool read_password(FILE *stream, char *password, const int size) {
 	//
 	// restore the old terminal settings
 	//
-	if (tcsetattr(fileno(stream), TCSANOW, &actual) != 0) {
+	if (tcsetattr(fileno(stream), TCSANOW, &actual) != 0)
+	{
 		print_error("read_password() Unable to set terminal attribute: %s\n", strerror(errno));
 		return false;
 	}
@@ -174,18 +188,21 @@ static bool read_password(FILE *stream, char *password, const int size) {
  * On success the password is duplicated and returned.
  **************************************************************************/
 
-static bool read_checked_passwd(FILE *stream, char **passwd) {
+static bool read_checked_passwd(FILE *stream, char **passwd)
+{
 	char line1[MAX_LINE];
 	char line2[MAX_LINE];
 
 	printf("Enter password:");
-	if (!read_password(stream, line1, MAX_LINE)) {
+	if (!read_password(stream, line1, MAX_LINE))
+	{
 		print_error_str("read_checked_passwd() Unable to read password!\n");
 		return false;
 	}
 
 	printf("\nReenter password:");
-	if (!read_password(stream, line2, MAX_LINE)) {
+	if (!read_password(stream, line2, MAX_LINE))
+	{
 		print_error_str("read_checked_passwd() Unable to read password!\n");
 		return false;
 	}
@@ -194,7 +211,8 @@ static bool read_checked_passwd(FILE *stream, char **passwd) {
 	//
 	// ensure that both passwords are the same.
 	//
-	if (strncmp(line1, line2, MAX_LINE) != 0) {
+	if (strncmp(line1, line2, MAX_LINE) != 0)
+	{
 		print_error_str("read_checked_passwd() Passwords differ!\n");
 		return false;
 	}
@@ -203,7 +221,8 @@ static bool read_checked_passwd(FILE *stream, char **passwd) {
 	// duplicate the password
 	//
 	*passwd = strdup(line1);
-	if (passwd == NULL) {
+	if (passwd == NULL)
+	{
 		print_error_str("read_checked_passwd() Unable to allocate memory!\n");
 		return false;
 	}
@@ -218,14 +237,16 @@ static bool read_checked_passwd(FILE *stream, char **passwd) {
  * start data to a file which is encryted.
  **************************************************************************/
 
-static bool sign_file(const s_arguments *arguments) {
+static bool sign_file(const s_arguments *arguments)
+{
 	bool result = false;
 
 	//
 	// create a start data structure
 	//
 	s_start_data *start_data = sh_start_data_create();
-	if (start_data == NULL) {
+	if (start_data == NULL)
+	{
 		print_error_str("sign_file() Unable create start data!\n");
 		goto CLEANUP;
 	}
@@ -233,8 +254,10 @@ static bool sign_file(const s_arguments *arguments) {
 	//
 	// read the password interactively, if configured
 	//
-	if (arguments->interactive_passwd) {
-		if (!read_checked_passwd(stdin, &(start_data->passwd))) {
+	if (arguments->interactive_passwd)
+	{
+		if (!read_checked_passwd(stdin, &(start_data->passwd)))
+		{
 			print_error_str("sign_file() Unable read password from stdin!\n");
 			goto CLEANUP;
 		}
@@ -243,7 +266,8 @@ static bool sign_file(const s_arguments *arguments) {
 	//
 	// read the start data from the unencrypted file
 	//
-	if (!sh_start_data_read(arguments->sign_file, start_data, false)) {
+	if (!sh_start_data_read(arguments->sign_file, start_data, false))
+	{
 		print_error_str("sign_file() Unable to read start data\n");
 		goto CLEANUP;
 	}
@@ -251,22 +275,24 @@ static bool sign_file(const s_arguments *arguments) {
 	//
 	// compute the hashes and write the result to an encrypted file
 	//
-	if (!sh_start_data_compute_hashes(start_data, false)) {
+	if (!sh_start_data_compute_hashes(start_data, false))
+	{
 		print_error_str("sign_file() Unable to compute hashes\n");
 		goto CLEANUP;
 	}
 
-	if (!sh_start_data_write_encr(arguments->out_file, start_data)) {
+	if (!sh_start_data_write_encr(arguments->out_file, start_data))
+	{
 		print_error_str("sign_file() Unable to encrypt start data\n");
 		goto CLEANUP;
 	}
 
 	result = true;
 
-	//
-	// Cleanup allocated resources
-	//
-	CLEANUP:
+//
+// Cleanup allocated resources
+//
+CLEANUP:
 
 	sh_start_data_free(start_data);
 
@@ -278,20 +304,23 @@ static bool sign_file(const s_arguments *arguments) {
  * changes ptrace has to be continued.
  **************************************************************************/
 
-static bool wait_for_child(const char *id_parent, const pid_t pid_child, const char *id_child) {
+static bool wait_for_child(const char *id_parent, const pid_t pid_child, const char *id_child)
+{
 	int status;
 
 	char prefix[SMALL_BUFFER_SIZE];
 	snprintf(prefix, SMALL_BUFFER_SIZE, "Process: '%s' with: %d child: '%s' with: %d", id_parent, getpid(), id_child, pid_child);
 
-	do {
+	do
+	{
 
 		//
 		// wait for the child process to have a state change
 		//
 		print_debug("wait_for_child() %s - Waiting for state change\n", prefix);
 
-		if (waitpid(pid_child, &status, 0) == -1) {
+		if (waitpid(pid_child, &status, 0) == -1)
+		{
 			print_error("wait_for_child() %s - Waitpid failed: %s\n", prefix, strerror(errno));
 			goto HANDLE_ERROR;
 		}
@@ -299,7 +328,8 @@ static bool wait_for_child(const char *id_parent, const pid_t pid_child, const c
 		//
 		// if the child process has not terminated we call ptrace PTRACE_CONT
 		//
-		if (!WIFEXITED(status) && ptrace(PTRACE_CONT, pid_child, NULL, NULL) == -1) {
+		if (!WIFEXITED(status) && ptrace(PTRACE_CONT, pid_child, NULL, NULL) == -1)
+		{
 			print_error("wait_for_child() %s - Calling ptrace with  PTRACE_CONT failed: %s\n", prefix, strerror(errno));
 			goto HANDLE_ERROR;
 		}
@@ -312,12 +342,13 @@ static bool wait_for_child(const char *id_parent, const pid_t pid_child, const c
 
 	return true;
 
-	//
-	// On errors ensure to kill child (for security and fun)
-	//
-	HANDLE_ERROR:
+//
+// On errors ensure to kill child (for security and fun)
+//
+HANDLE_ERROR:
 
-	if (kill(pid_child, SIGKILL) == -1) {
+	if (kill(pid_child, SIGKILL) == -1)
+	{
 		print_error("wait_for_child() %s - Killing child failed: %s\n", prefix, strerror(errno));
 	}
 
@@ -330,14 +361,16 @@ static bool wait_for_child(const char *id_parent, const pid_t pid_child, const c
  * which is used to hand over the password.
  ******************************************************************************/
 
-static bool exec_program(const s_start_data *start_data) {
+static bool exec_program(const s_start_data *start_data)
+{
 	int pipe_fd[2];
 	pid_t pid;
 
 	//
 	// create an unidirectional pipe from the parent to the child
 	//
-	if (pipe(pipe_fd) < 0) {
+	if (pipe(pipe_fd) < 0)
+	{
 		print_error("exec_program() Unable to create a pipe: %s", strerror(errno));
 		return false;
 	}
@@ -345,7 +378,8 @@ static bool exec_program(const s_start_data *start_data) {
 	//
 	// fork the process
 	//
-	if ((pid = fork()) == -1) {
+	if ((pid = fork()) == -1)
+	{
 		print_error("exec_program() Unable to fork a new process: %s\n", strerror(errno));
 		return false;
 	}
@@ -353,13 +387,15 @@ static bool exec_program(const s_start_data *start_data) {
 	//
 	// process the child
 	//
-	if (pid == 0) {
-		print_debug("exec_program() Process: %s pid: %d was successfully forked\n",ID_EXECV , getpid());
+	if (pid == 0)
+	{
+		print_debug("exec_program() Process: %s pid: %d was successfully forked\n", ID_EXECV, getpid());
 
 		//
 		// be ready to be traced
 		//
-		if (ptrace(PTRACE_TRACEME) == -1) {
+		if (ptrace(PTRACE_TRACEME) == -1)
+		{
 			print_error("exec_program() Process: %s pid: %d - ptrace failed: %s\n", ID_EXECV, getpid(), strerror(errno));
 			return false;
 		}
@@ -368,7 +404,8 @@ static bool exec_program(const s_start_data *start_data) {
 		// The child reads the password from the pipe and continue writing to stdout.
 		// So the stdout of the pipe is useless.
 		//
-		if (close(pipe_fd[STDOUT_FILENO]) == -1) {
+		if (close(pipe_fd[STDOUT_FILENO]) == -1)
+		{
 			print_error("exec_program() Unable to close file descriptor: %s\n", strerror(errno));
 			return false;
 		}
@@ -376,7 +413,8 @@ static bool exec_program(const s_start_data *start_data) {
 		//
 		// copy the pipe stdin to stdin, so the child reads from the pipe by the stdin fd
 		//
-		if (dup2(pipe_fd[STDIN_FILENO], STDIN_FILENO) == -1) {
+		if (dup2(pipe_fd[STDIN_FILENO], STDIN_FILENO) == -1)
+		{
 			print_error("exec_program() Unable to dup file descriptor: %s\n", strerror(errno));
 			return false;
 		}
@@ -384,7 +422,8 @@ static bool exec_program(const s_start_data *start_data) {
 		//
 		// close the duplicated pipe stdin
 		//
-		if (close(pipe_fd[STDIN_FILENO]) == -1) {
+		if (close(pipe_fd[STDIN_FILENO]) == -1)
+		{
 			print_error("exec_program() Unable to close file descriptor: %s\n", strerror(errno));
 			return false;
 		}
@@ -392,7 +431,8 @@ static bool exec_program(const s_start_data *start_data) {
 		//
 		// start the program
 		//
-		if (execv(start_data->path, start_data->argv) == -1) {
+		if (execv(start_data->path, start_data->argv) == -1)
+		{
 			print_error("exec_program() Unable to exec program: %s due to: %s\n", start_data->path, strerror(errno));
 			return false;
 		}
@@ -406,13 +446,16 @@ static bool exec_program(const s_start_data *start_data) {
 		//
 		// process the parent
 		//
-	} else {
-		print_debug("exec_program() Process: %s pid: %d successfully forked child: %s pid: %d\n",ID_HAND_OVER , getpid(), ID_EXECV, pid);
+	}
+	else
+	{
+		print_debug("exec_program() Process: %s pid: %d successfully forked child: %s pid: %d\n", ID_HAND_OVER, getpid(), ID_EXECV, pid);
 
 		//
 		// the parent writes the password to the pipe, so stdin is useless
 		//
-		if (close(pipe_fd[STDIN_FILENO]) == -1) {
+		if (close(pipe_fd[STDIN_FILENO]) == -1)
+		{
 			print_error("exec_program() Unable to close file descriptor: %s\n", strerror(errno));
 			return false;
 		}
@@ -421,7 +464,8 @@ static bool exec_program(const s_start_data *start_data) {
 		// open stdout to write the password to
 		//
 		FILE *pipe = fdopen(pipe_fd[STDOUT_FILENO], "w");
-		if (pipe == NULL) {
+		if (pipe == NULL)
+		{
 			print_error("exec_program() Unable to open the pipe: %s\n", strerror(errno));
 			return false;
 		}
@@ -429,7 +473,8 @@ static bool exec_program(const s_start_data *start_data) {
 		//
 		// write the password
 		//
-		if (fprintf(pipe, "%s\n", start_data->passwd) < 0) {
+		if (fprintf(pipe, "%s\n", start_data->passwd) < 0)
+		{
 			print_error_str("exec_program() Unable to write the password to the pipe\n");
 			return false;
 		}
@@ -437,7 +482,8 @@ static bool exec_program(const s_start_data *start_data) {
 		//
 		// close the pipe because there is nothing more to say
 		//
-		if (fclose(pipe) == -1) {
+		if (fclose(pipe) == -1)
+		{
 			print_error("exec_program() Unable to close the pipe: %s\n", strerror(errno));
 			return false;
 		}
@@ -447,12 +493,13 @@ static bool exec_program(const s_start_data *start_data) {
 		//
 		// wait for the child to exit
 		//
-		if (!wait_for_child(ID_HAND_OVER, pid, ID_EXECV)) {
+		if (!wait_for_child(ID_HAND_OVER, pid, ID_EXECV))
+		{
 			print_error("main() Unable to wait for child: %d\n", pid);
 			return EXIT_FAILURE;
 		}
 
-		print_debug("main() Process: %s pid: %d finished!\n",ID_HAND_OVER , getpid());
+		print_debug("main() Process: %s pid: %d finished!\n", ID_HAND_OVER, getpid());
 	}
 
 	return true;
@@ -464,14 +511,16 @@ static bool exec_program(const s_start_data *start_data) {
  * checked and on success the program is executed.
  **************************************************************************/
 
-static bool launch_program(const s_arguments *arguments) {
+static bool launch_program(const s_arguments *arguments)
+{
 	bool result = false;
 
 	//
 	// create the structure for the start data
 	//
 	s_start_data *start_data = sh_start_data_create();
-	if (start_data == NULL) {
+	if (start_data == NULL)
+	{
 		print_error_str("launch_program() Unable to allocate memory!\n");
 		goto CLEANUP;
 	}
@@ -480,7 +529,8 @@ static bool launch_program(const s_arguments *arguments) {
 	// read the encrypted launch file and save the content in the start data
 	// structure.
 	//
-	if (!sh_start_data_read_encr(arguments->launch_file, start_data)) {
+	if (!sh_start_data_read_encr(arguments->launch_file, start_data))
+	{
 		print_error("launch_program() Unable to read start data from file: %s\n", arguments->launch_file);
 		goto CLEANUP;
 	}
@@ -489,7 +539,8 @@ static bool launch_program(const s_arguments *arguments) {
 	// check the hashes from the launch file with the actual hashes of the
 	// files to see, whether a file has changed (which is a security risc).
 	//
-	if (!sh_start_data_compute_hashes(start_data, true)) {
+	if (!sh_start_data_compute_hashes(start_data, true))
+	{
 		print_error("launch_program() Unable to compute hashes for launch file: %s\n", arguments->launch_file);
 		goto CLEANUP;
 	}
@@ -497,17 +548,18 @@ static bool launch_program(const s_arguments *arguments) {
 	//
 	// if the hashes are ok we can start the target program.
 	//
-	if (!exec_program(start_data)) {
+	if (!exec_program(start_data))
+	{
 		print_error("launch_program() Unable to launch file: %s\n", arguments->launch_file);
 		goto CLEANUP;
 	}
 
 	result = true;
 
-	//
-	// Cleanup allocated resources
-	//
-	CLEANUP:
+//
+// Cleanup allocated resources
+//
+CLEANUP:
 
 	sh_start_data_free(start_data);
 
@@ -520,17 +572,21 @@ static bool launch_program(const s_arguments *arguments) {
  * function contains an optional message (not NULL) that will be written.
  **************************************************************************/
 
-static void print_usage(const bool has_error, const char* msg) {
+static void print_usage(const bool has_error, const char *msg)
+{
 	FILE *stream;
 	int status;
 
 	//
 	// choose stdout / stderr depending on the error flag
 	//
-	if (has_error) {
+	if (has_error)
+	{
 		status = EXIT_FAILURE;
 		stream = stderr;
-	} else {
+	}
+	else
+	{
 		status = EXIT_SUCCESS;
 		stream = stdout;
 	}
@@ -538,8 +594,10 @@ static void print_usage(const bool has_error, const char* msg) {
 	//
 	// if the function call contains a message it is written
 	//
-	if (msg != NULL) {
-		if (has_error) {
+	if (msg != NULL)
+	{
+		if (has_error)
+		{
 			fprintf(stream, "ERROR - ");
 		}
 		fprintf(stream, "%s\n", msg);
@@ -562,13 +620,16 @@ static void print_usage(const bool has_error, const char* msg) {
  * The function parses the program args.
  **************************************************************************/
 
-static bool process_args(const int argc, char * const argv[], s_arguments *arguments) {
+static bool process_args(const int argc, char *const argv[], s_arguments *arguments)
+{
 
 	int index;
 	int c;
 
-	while ((c = getopt(argc, argv, "s:l:o:n")) != -1) {
-		switch (c) {
+	while ((c = getopt(argc, argv, "s:l:o:n")) != -1)
+	{
+		switch (c)
+		{
 
 		case 's':
 			arguments->sign_file = optarg;
@@ -598,21 +659,24 @@ static bool process_args(const int argc, char * const argv[], s_arguments *argum
 	// The program has a sign and a launch mode, so one of the corresponding
 	// files have to be set.
 	//
-	if (arguments->sign_file != NULL && arguments->launch_file != NULL) {
+	if (arguments->sign_file != NULL && arguments->launch_file != NULL)
+	{
 		print_usage(true, "Sign or launch");
 	}
 
 	//
 	// Not both of the corresponding files have to be set.
 	//
-	if (arguments->sign_file == NULL && arguments->launch_file == NULL) {
+	if (arguments->sign_file == NULL && arguments->launch_file == NULL)
+	{
 		print_usage(true, "Please select '-s FILE' to sign or '-l FILE' to launch the file!");
 	}
 
 	//
 	// On sign mode, an output file has to be set.
 	//
-	if (arguments->sign_file != NULL && arguments->out_file == NULL) {
+	if (arguments->sign_file != NULL && arguments->out_file == NULL)
+	{
 		print_usage(true, "out missing");
 	}
 
@@ -621,7 +685,8 @@ static bool process_args(const int argc, char * const argv[], s_arguments *argum
 	//
 	// non option arguments are currently ignored
 	//
-	for (index = optind; index < argc; index++) {
+	for (index = optind; index < argc; index++)
+	{
 		print_debug("process_args() Found non-option argument %s\n", argv[index]);
 	}
 
@@ -636,13 +701,15 @@ static bool process_args(const int argc, char * const argv[], s_arguments *argum
  * target program and to hand over the password.
  **************************************************************************/
 
-static bool deferred_main(const int argc, char * const argv[]) {
-	s_arguments arguments = { NULL, NULL, NULL, true };
+static bool deferred_main(const int argc, char *const argv[])
+{
+	s_arguments arguments = {NULL, NULL, NULL, true};
 
 	//
 	//
 	//
-	if (!init_keys()) {
+	if (!init_keys())
+	{
 		print_error_str("deferred_main() Unable to init keys!\n");
 		return false;
 	}
@@ -655,8 +722,10 @@ static bool deferred_main(const int argc, char * const argv[]) {
 	//
 	// continue in sign mode
 	//
-	if (arguments.sign_file != NULL) {
-		if (!sign_file(&arguments)) {
+	if (arguments.sign_file != NULL)
+	{
+		if (!sign_file(&arguments))
+		{
 			print_error("deferred_main() Unable to sign file: %s\n", arguments.sign_file);
 			return false;
 		}
@@ -664,8 +733,11 @@ static bool deferred_main(const int argc, char * const argv[]) {
 		//
 		// continue in launch mode
 		//
-	} else {
-		if (!launch_program(&arguments)) {
+	}
+	else
+	{
+		if (!launch_program(&arguments))
+		{
 			print_error("deferred_main() Unable to launch program from: %s\n", arguments.launch_file);
 			return false;
 		}
@@ -685,7 +757,8 @@ static bool deferred_main(const int argc, char * const argv[]) {
  *                  write password         -> read password
  **************************************************************************/
 
-int main(const int argc, char * const argv[]) {
+int main(const int argc, char *const argv[])
+{
 	pid_t pid;
 
 	print_debug_str("Start!\n");
@@ -697,7 +770,8 @@ int main(const int argc, char * const argv[]) {
 	//
 	// set ulimit to avoid core dumps
 	//
-	if (!avoid_coredumps()) {
+	if (!avoid_coredumps())
+	{
 		print_error_str("main() Unable to avoid coredumps!\n");
 		return EXIT_FAILURE;
 	}
@@ -705,7 +779,8 @@ int main(const int argc, char * const argv[]) {
 	//
 	// fork the process
 	//
-	if ((pid = fork()) == -1) {
+	if ((pid = fork()) == -1)
+	{
 		print_error("main() Unable to fork a new process: %s\n", strerror(errno));
 		return EXIT_FAILURE;
 	}
@@ -713,13 +788,15 @@ int main(const int argc, char * const argv[]) {
 	//
 	// child process starts the actual program (sign or launch)
 	//
-	if (pid == 0) {
-		print_debug("main() Process: %s pid: %d was successfully forked\n",ID_HAND_OVER , getpid());
+	if (pid == 0)
+	{
+		print_debug("main() Process: %s pid: %d was successfully forked\n", ID_HAND_OVER, getpid());
 
 		//
 		// be ready to be traced
 		//
-		if (ptrace(PTRACE_TRACEME) == -1) {
+		if (ptrace(PTRACE_TRACEME) == -1)
+		{
 			print_error("main() Process: %s pid: %d - ptrace failed: %s\n", ID_HAND_OVER, getpid(), strerror(errno));
 			return EXIT_FAILURE;
 		}
@@ -727,28 +804,32 @@ int main(const int argc, char * const argv[]) {
 		//
 		// do the actual program execution
 		//
-		if (!deferred_main(argc, argv)) {
+		if (!deferred_main(argc, argv))
+		{
 			print_error_str("main() Unable to start the actual program!\n");
 			return EXIT_FAILURE;
 		}
 
-		print_debug("main() Process: %s pid: %d successfully processed program!\n",ID_HAND_OVER, getpid());
+		print_debug("main() Process: %s pid: %d successfully processed program!\n", ID_HAND_OVER, getpid());
 
 		//
 		// parent process is used to trace the child
 		//
-	} else {
-		print_debug("main() Process: %s pid: %d successfully forked child: %s pid: %d\n",ID_MAIN , getpid(), ID_HAND_OVER, pid);
+	}
+	else
+	{
+		print_debug("main() Process: %s pid: %d successfully forked child: %s pid: %d\n", ID_MAIN, getpid(), ID_HAND_OVER, pid);
 
 		//
 		// wait for the child to exit
 		//
-		if (!wait_for_child(ID_MAIN, pid, ID_HAND_OVER)) {
+		if (!wait_for_child(ID_MAIN, pid, ID_HAND_OVER))
+		{
 			print_error("main() Unable to wait for child: %d\n", pid);
 			return EXIT_FAILURE;
 		}
 
-		print_debug("main() Process: %s pid: %d finished!\n",ID_MAIN , getpid());
+		print_debug("main() Process: %s pid: %d finished!\n", ID_MAIN, getpid());
 	}
 
 	print_debug_str("End!\n");
