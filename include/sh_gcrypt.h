@@ -11,7 +11,8 @@
 #include <stdbool.h>
 #include <gcrypt.h>
 
-typedef struct {
+typedef struct
+{
 
 	//
 	// The input or output file depending on encryption or decryption.
@@ -40,7 +41,10 @@ typedef struct {
 
 } crypt_ctx;
 
-#define sh_gc_ctx { NULL, NULL,NULL, NULL ,NULL}
+#define sh_gc_ctx                    \
+	{                                \
+		NULL, NULL, NULL, NULL, NULL \
+	}
 
 bool sh_gc_open_encrypt(crypt_ctx *ctx, const char *file_name);
 

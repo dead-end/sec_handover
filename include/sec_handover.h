@@ -8,6 +8,4 @@
 #ifndef SEC_HANDOVER_H_
 #define SEC_HANDOVER_H_
 
-
-
 #endif /* SEC_HANDOVER_H_ */

@@ -14,7 +14,8 @@
  * the file.
  **************************************************************************/
 
-typedef struct hash_file {
+typedef struct hash_file
+{
 
 	//
 	// the absolute filename
@@ -37,7 +38,8 @@ typedef struct hash_file {
  * The struct is used to store the start data.
  **************************************************************************/
 
-typedef struct {
+typedef struct
+{
 
 	//
 	// linked list of hash files
