@@ -17,13 +17,13 @@ CC = gcc
 # 
 ################################################################################
 
+LIBGCRYPT-CONFIG-PREFIX=
+
 LIBGCRYPT-CONFIG=libgcrypt-config
 
-#ifeq ($(libgcrypt-prefix),)
-#  
-#else
-#  LIBGCRYPT-CONFIG=$(libgcrypt-prefix)/bin/libgcrypt-config
-#endif
+ifneq ($(LIBGCRYPT-CONFIG-PREFIX),)
+  LIBGCRYPT-CONFIG=$(LIBGCRYPT-CONFIG-PREFIX)/bin/libgcrypt-config
+endif
 
 ################################################################################
 # A variable that collects the optional flags.
