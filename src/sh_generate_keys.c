@@ -38,7 +38,7 @@
  * file. It adds a newline after BLOCK_SIZE bytes.
  *****************************************************************************/
 
-static bool print_random_bytes(FILE *file, const size_t num_bytes)
+static void print_random_bytes(FILE *file, const size_t num_bytes)
 {
 	int modulo;
 
@@ -47,8 +47,7 @@ static bool print_random_bytes(FILE *file, const size_t num_bytes)
 	//
 	if (num_bytes % BLOCK_SIZE != 0)
 	{
-		print_error("print_random_bytes() Invalid size %zu\n", num_bytes);
-		return false;
+		log_exit("Invalid size %zu\n", num_bytes);
 	}
 
 	//
@@ -88,8 +87,6 @@ static bool print_random_bytes(FILE *file, const size_t num_bytes)
 	}
 
 	gcry_free(random);
-
-	return true;
 }
 
 /******************************************************************************
@@ -101,11 +98,9 @@ static void genereate_keys_file(const char *file_name, const size_t cipher_key_l
 	FILE *file;
 	time_t rawtime;
 
-	file = fopen(file_name, "w+");
-	if (file == NULL)
+	if ((file = fopen(file_name, "w+")) == NULL)
 	{
-		print_error("genereate_keys_file() Unable to open file %s due to: %s\n", file_name, strerror(errno));
-		exit(EXIT_FAILURE);
+		log_exit("Unable to open file %s due to: %s\n", file_name, strerror(errno));
 	}
 
 	//
@@ -142,8 +137,7 @@ int main(const int argc, const char *argv[])
 
 	if (argc != 2)
 	{
-		print_error_str("main() Usage: sh_generate_keys <sh_generated_keys.c>");
-		return EXIT_FAILURE;
+		log_exit_str("Usage: sh_generate_keys <sh_generated_keys.c>");
 	}
 
 	genereate_keys_file(argv[1], CIPHER_KEY_LEN, HMAC_KEY_LEN);
