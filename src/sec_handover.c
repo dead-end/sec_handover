@@ -1,15 +1,39 @@
-/***************************************************************************
- * sec_handover.c
+/*
+ * MIT License
  *
- *  Created on: Aug 12, 2017
- * 
- *      Author: dead-end
- **************************************************************************/
+ * Copyright (c) 2021 dead-end
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 
-#include <sh_generated_keys.h>
 #include <stdlib.h>
-#include <stdio.h>
 #include <errno.h>
+
+#include <termios.h>
+#include <unistd.h>
+
+#include <sys/ptrace.h>
+#include <sys/time.h>
+#include <sys/resource.h>
+#include <sys/wait.h>
+
+#include "sh_generated_keys.h"
 
 #include "sh_gcrypt.h"
 #include "sh_utils.h"
@@ -17,24 +41,15 @@
 #include "sh_commons.h"
 #include "sh_start_data.h"
 
-#include <termios.h>
-#include <unistd.h>
-
-#include <sys/ptrace.h>
-
-#include <sys/time.h>
-#include <sys/resource.h>
-#include <sys/wait.h>
-
 #define ID_MAIN "main(tracer)"
 
 #define ID_HAND_OVER "handover(tracer/tracee)"
 
 #define ID_EXECV "execv(tracee)"
 
-/***************************************************************************
+/******************************************************************************
  * The struct contains the parsed arguments.
- **************************************************************************/
+ *****************************************************************************/
 
 typedef struct
 {
@@ -57,17 +72,17 @@ typedef struct
 	char *out_file;
 
 	//
-	// A flag that indicated whether to read the password interactively or
-	// to read the password from the configuration file. The later is only
+	// A flag that indicated whether to read the password interactively or to
+	// read the password from the configuration file. The later is only
 	// recommended for test cases.
 	//
 	bool interactive_passwd;
 
 } s_arguments;
 
-/***************************************************************************
+/******************************************************************************
  * The function sets ulimit to 0 to avoid core dumps.
- **************************************************************************/
+ *****************************************************************************/
 
 static bool avoid_coredumps()
 {
@@ -85,11 +100,11 @@ static bool avoid_coredumps()
 	return true;
 }
 
-/***************************************************************************
- * The function computes a hmac over the binaries of this program. With the
- * hmac the cipher key and the hmac keys are XOR-ed. If the binaries are
+/******************************************************************************
+ * The function computes a hmac over the binaries of this program. With the 
+ * hmac the cipher key and the hmac keys are XOR-ed. If the binaries are 
  * manipulated, the config file cannot be decrypted.
- **************************************************************************/
+ *****************************************************************************/
 
 static bool init_keys()
 {
@@ -124,10 +139,10 @@ static bool init_keys()
 	return true;
 }
 
-/***************************************************************************
- * The function reads a password from a stream. Echoing is switched off and
- * the tailing newline is removed.
- **************************************************************************/
+/******************************************************************************
+ * The function reads a password from a stream. Echoing is switched off and the
+ * tailing newline is removed.
+ *****************************************************************************/
 
 static bool read_password(FILE *stream, char *password, const int size)
 {
@@ -183,10 +198,10 @@ static bool read_password(FILE *stream, char *password, const int size)
 	return true;
 }
 
-/***************************************************************************
- * The function twice prints a prompt and reads a password from the stream.
- * On success the password is duplicated and returned.
- **************************************************************************/
+/******************************************************************************
+ * The function twice prints a prompt and reads a password from the stream. On
+ * success the password is duplicated and returned.
+ *****************************************************************************/
 
 static bool read_checked_passwd(FILE *stream, char **passwd)
 {
@@ -230,12 +245,12 @@ static bool read_checked_passwd(FILE *stream, char **passwd)
 	return true;
 }
 
-/***************************************************************************
- * The function creates a signed file from an unsigned file. The unsigned
- * file is unencrypted and contains the start data without the file hashes.
- * The password is optional. The method computes the hashes and writes the
- * start data to a file which is encryted.
- **************************************************************************/
+/******************************************************************************
+ * The function creates a signed file from an unsigned file. The unsigned file 
+ * is unencrypted and contains the start data without the file hashes. The
+ * password is optional. The method computes the hashes and writes the start 
+ * data to a file which is encryted.
+ *****************************************************************************/
 
 static bool sign_file(const s_arguments *arguments)
 {
@@ -299,10 +314,10 @@ CLEANUP:
 	return result;
 }
 
-/***************************************************************************
+/******************************************************************************
  * The function waits for a child process to exit. If the state of the child
  * changes ptrace has to be continued.
- **************************************************************************/
+ *****************************************************************************/
 
 static bool wait_for_child(const char *id_parent, const pid_t pid_child, const char *id_child)
 {
@@ -355,11 +370,11 @@ HANDLE_ERROR:
 	return false;
 }
 
-/*******************************************************************************
+/**********************************************************************************
  * The function does a lot of the magic. It forks a child process and starts the
- * target program with execv. It creates a pipe form the parent to the child
- * which is used to hand over the password.
- ******************************************************************************/
+ * target program with execv. It creates a pipe form the parent to the child which 
+ * is used to hand over the password.
+ *********************************************************************************/
 
 static bool exec_program(const s_start_data *start_data)
 {
@@ -505,11 +520,11 @@ static bool exec_program(const s_start_data *start_data)
 	return true;
 }
 
-/***************************************************************************
+/******************************************************************************
  * The function launches the target program. For this to do, the encrypted
- * configuration file (launch_file) is read, the hashes in the file are
- * checked and on success the program is executed.
- **************************************************************************/
+ * configuration file (launch_file) is read, the hashes in the file are checked 
+ * and on success the program is executed.
+ *****************************************************************************/
 
 static bool launch_program(const s_arguments *arguments)
 {
@@ -566,11 +581,11 @@ CLEANUP:
 	return result;
 }
 
-/***************************************************************************
+/******************************************************************************
  * The function writes the program usage. It is called with an error flag.
- * Depending on the flag the stream (stdout / stderr) is selected. The
- * function contains an optional message (not NULL) that will be written.
- **************************************************************************/
+ * Depending on the flag the stream (stdout / stderr) is selected. The function 
+ * contains an optional message (not NULL) that will be written.
+ *****************************************************************************/
 
 static void print_usage(const bool has_error, const char *msg)
 {
@@ -616,9 +631,9 @@ static void print_usage(const bool has_error, const char *msg)
 	exit(status);
 }
 
-/***************************************************************************
+/******************************************************************************
  * The function parses the program args.
- **************************************************************************/
+ *****************************************************************************/
 
 static bool process_args(const int argc, char *const argv[], s_arguments *arguments)
 {
@@ -693,13 +708,13 @@ static bool process_args(const int argc, char *const argv[], s_arguments *argume
 	return true;
 }
 
-/***************************************************************************
- * The function is the actual main function of the program. The program has
- * a sign mode which processes the configuration file, by computing the file
- * hashes and encrypt the file. The launch mode uses the encrypted
- * configuration file to check the hashes and on success to launch the
- * target program and to hand over the password.
- **************************************************************************/
+/******************************************************************************
+ * The function is the actual main function of the program. The program has a 
+ * sign mode which processes the configuration file, by computing the file 
+ * hashes and encrypt the file. The launch mode uses the encrypted 
+ * configuration file to check the hashes and on success to launch the target 
+ * program and to hand over the password.
+ *****************************************************************************/
 
 static bool deferred_main(const int argc, char *const argv[])
 {
@@ -746,16 +761,15 @@ static bool deferred_main(const int argc, char *const argv[])
 	return true;
 }
 
-/***************************************************************************
+/******************************************************************************
  * The main function forks a child process and traces the child. The child
  * process forks a third program, the child-child. The child traces the
- * child-child and hands over the password from the child to the
- * child-child.
+ * child-child and hands over the password from the child to the child-child.
  *
  * main (tracer) -> child (tracee /tracer) -> child-child (tracee)
  *                                            execv()
  *                  write password         -> read password
- **************************************************************************/
+ *****************************************************************************/
 
 int main(const int argc, char *const argv[])
 {
