@@ -25,11 +25,10 @@
 #ifndef INCLUDE_SH_START_DATA_H_
 #define INCLUDE_SH_START_DATA_H_
 
-/***************************************************************************
- * The struct is used to store entries for a linked list of hashed files.
- * Each entry contains the absolute path of the file and the hash value of
- * the file.
- **************************************************************************/
+/******************************************************************************
+ * The struct is used to store entries for a linked list of hashed files. Each 
+ * entry contains the absolute path of the file and the hash value of the file.
+ *****************************************************************************/
 
 typedef struct hash_file
 {
@@ -51,9 +50,9 @@ typedef struct hash_file
 
 } s_hash_file;
 
-/***************************************************************************
+/******************************************************************************
  * The struct is used to store the start data.
- **************************************************************************/
+ *****************************************************************************/
 
 typedef struct
 {
