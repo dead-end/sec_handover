@@ -1,12 +1,28 @@
 /*
- * sh_start_data.c
+ * MIT License
  *
- *  Created on: Nov 26, 2017
- *      Author: dead-end
+ * Copyright (c) 2021 dead-end
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
 
 #include <stdlib.h>
-#include <stdio.h>
 #include <stdbool.h>
 #include <errno.h>
 #include <string.h>
@@ -41,9 +57,9 @@ enum cfg_tags
 	CFG_TAG_NULL
 };
 
-/***************************************************************************
+/******************************************************************************
  * The function adds a hash_file to the end of the linked list.
- **************************************************************************/
+ *****************************************************************************/
 
 static void add_hash_file(s_start_data *start_data, s_hash_file *hash_file)
 {
@@ -74,9 +90,9 @@ static void add_hash_file(s_start_data *start_data, s_hash_file *hash_file)
 	ptr->next = hash_file;
 }
 
-/***************************************************************************
+/******************************************************************************
  * The method frees a start_data struct and its content.
- **************************************************************************/
+ *****************************************************************************/
 
 void sh_start_data_free(s_start_data *start_data)
 {
@@ -124,9 +140,9 @@ void sh_start_data_free(s_start_data *start_data)
 	free(start_data);
 }
 
-/***************************************************************************
+/******************************************************************************
  * The method checks and validates all variables of start_data.
- **************************************************************************/
+ *****************************************************************************/
 
 static bool check_start_data(const s_start_data *start_data, const bool with_hashes)
 {
@@ -238,10 +254,10 @@ static bool check_start_data(const s_start_data *start_data, const bool with_has
 	return true;
 }
 
-/***************************************************************************
- * The method parses and sets the command from the config file. The
- * validation is done in check_start_data()
- **************************************************************************/
+/******************************************************************************
+ * The method parses and sets the command from the config file. The validation 
+ * is done in check_start_data()
+ *****************************************************************************/
 
 static bool get_cmd(s_start_data *start_data, char *line)
 {
@@ -279,10 +295,10 @@ static bool get_cmd(s_start_data *start_data, char *line)
 	return true;
 }
 
-/***************************************************************************
- * The method parses and sets the password from the config file. The
- * validation is done in check_start_data()
- **************************************************************************/
+/******************************************************************************
+ * The method parses and sets the password from the config file. The validation 
+ * is done in check_start_data()
+ *****************************************************************************/
 
 static bool get_password(s_start_data *start_data, char *line)
 {
@@ -308,10 +324,10 @@ static bool get_password(s_start_data *start_data, char *line)
 	return true;
 }
 
-/***************************************************************************
- * The method parses and sets a hash file from the config file. The
- * validation is done in check_start_data()
- **************************************************************************/
+/******************************************************************************
+ * The method parses and sets a hash file from the config file. The validation 
+ * is done in check_start_data()
+ *****************************************************************************/
 
 static bool get_hash_file(s_start_data *start_data, char *line, const bool with_hashes)
 {
@@ -396,11 +412,11 @@ static bool get_hash_file(s_start_data *start_data, char *line, const bool with_
 	return true;
 }
 
-/***************************************************************************
- * Config files can be encrypted and decrypted. This function parses a
- * single line from the config file. The different function calls hold a
- * state which is current_tag and writes the result to the start_data.
- **************************************************************************/
+/******************************************************************************
+ * Config files can be encrypted and decrypted. This function parses a single 
+ * line from the config file. The different function calls hold a state which 
+ * is current_tag and writes the result to the start_data.
+ *****************************************************************************/
 
 static bool parse_line(char *line, enum cfg_tags *current_tag, s_start_data *start_data, const bool with_hashes)
 {
@@ -482,10 +498,10 @@ static bool parse_line(char *line, enum cfg_tags *current_tag, s_start_data *sta
 	return true;
 }
 
-/***************************************************************************
+/******************************************************************************
  * The function reads the start data from an unencrypted file. The file may
  * contain hashes.
- **************************************************************************/
+ *****************************************************************************/
 
 bool sh_start_data_read(const char *filename, s_start_data *start_data, const bool with_hashes)
 {
@@ -539,10 +555,10 @@ CLEANUP:
 	return result;
 }
 
-/***************************************************************************
+/******************************************************************************
  * The function reads the start data from an encrypted file. The encrypted
  * file always contains hash values.
- **************************************************************************/
+ *****************************************************************************/
 
 bool sh_start_data_read_encr(const char *filename, s_start_data *start_data)
 {
@@ -607,9 +623,9 @@ CLEANUP:
 	return result;
 }
 
-/***************************************************************************
+/******************************************************************************
  * The function writes the start data to a file. The data will be encrypted.
- **************************************************************************/
+ *****************************************************************************/
 
 bool sh_start_data_write_encr(const char *file_name, const s_start_data *start_data)
 {
@@ -726,11 +742,11 @@ CLEANUP:
 	return result;
 }
 
-/***************************************************************************
- * The function computes the hash values for all files in the linked list.
- * If the flag 'compare' is set, the computed hashes are compared with the
+/******************************************************************************
+ * The function computes the hash values for all files in the linked list. If 
+ * the flag 'compare' is set, the computed hashes are compared with the 
  * configured hashes to see if a file has change, which is a security risc.
- **************************************************************************/
+ *****************************************************************************/
 
 bool sh_start_data_compute_hashes(s_start_data *start_data, const bool compare)
 {
