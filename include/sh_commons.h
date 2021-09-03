@@ -47,9 +47,20 @@
 #define print_error(fmt, ...) fprintf(stderr, "ERROR - " fmt, ##__VA_ARGS__)
 #define print_error_str(fmt) fprintf(stderr, "ERROR - " fmt)
 
-//
-// default buffer size
-//
+/******************************************************************************
+ * Definition of the error logging macro.
+ *****************************************************************************/
+
+#define log_error(fmt, ...) \
+    fprintf(stderr, "ERROR %s:%d:%s() " fmt "\n", __FILE__, __LINE__, __func__, ##__VA_ARGS__);
+
+#define log_error_str(fmt) \
+    fprintf(stderr, "ERROR %s:%d:%s() " fmt "\n", __FILE__, __LINE__, __func__);
+
+/******************************************************************************
+ * default buffer size.
+ *****************************************************************************/
+
 #define BUFFER_SIZE 1024
 
 #define SMALL_BUFFER_SIZE 256
