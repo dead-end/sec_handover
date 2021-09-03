@@ -1,20 +1,34 @@
-/***************************************************************************
- * sh_gcrypt.c
+/*
+ * MIT License
  *
- *  Created on: Aug 13, 2017
- *      Author: dead-end
- **************************************************************************/
+ * Copyright (c) 2021 dead-end
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 
 #define _GNU_SOURCE
 
 #include <stdlib.h>
-#include <stdio.h>
 #include <stdbool.h>
 #include <errno.h>
-
 #include <string.h>
 
-#include <gcrypt.h>
 #include <sys/stat.h>
 
 #include "sh_commons.h"
@@ -23,10 +37,10 @@
 
 #include "sh_gcrypt.h"
 
-/***************************************************************************
+/******************************************************************************
  * The function initializes the cipher, by creating and initializing the cipher
  * context handle, which has to be closed if it not used anymore.
- **************************************************************************/
+ *****************************************************************************/
 
 static bool init_cipher_handle(gcry_cipher_hd_t *cipher_handle, const unsigned char *key, unsigned char *init_vector)
 {
@@ -67,9 +81,9 @@ static bool init_cipher_handle(gcry_cipher_hd_t *cipher_handle, const unsigned c
 	return true;
 }
 
-/***************************************************************************
+/******************************************************************************
  * The function closes the hmac handle if necessary.
- **************************************************************************/
+ *****************************************************************************/
 
 static void cleanup_hmac_handle(gcry_mac_hd_t *hmac_handle)
 {
@@ -81,10 +95,10 @@ static void cleanup_hmac_handle(gcry_mac_hd_t *hmac_handle)
 	}
 }
 
-/***************************************************************************
- * The function initializes the hmac handle. The hmac handle has to be
- * closed if it is not used anymore.
- **************************************************************************/
+/******************************************************************************
+ * The function initializes the hmac handle. The hmac handle has to be closed 
+ * if it is not used anymore.
+ *****************************************************************************/
 
 static bool init_hmac_handle(gcry_mac_hd_t *hmac_handle)
 {
@@ -113,12 +127,12 @@ static bool init_hmac_handle(gcry_mac_hd_t *hmac_handle)
 	return true;
 }
 
-/***************************************************************************
- * The function computes a hmac over a file represented by a FILE pointer.
- * The computation takes place from the current file position to the end of
- * the file. To work correct the file position has to be set before by a
- * fseek call.
- **************************************************************************/
+/******************************************************************************
+ * The function computes a hmac over a file represented by a FILE pointer. The 
+ * computation takes place from the current file position to the end of the 
+ * file. To work correct the file position has to be set before by a fseek 
+ * call.
+ *****************************************************************************/
 
 static bool compute_hmac_over_file(FILE *file, unsigned char *hmac)
 {
@@ -214,11 +228,10 @@ CLEANUP:
 	return result;
 }
 
-/***************************************************************************
- * The function computes a hmac over a file with a given name. An array of
- * unsigned chars for the result has to be allocated with a size of
- * HMAC_LEN.
- **************************************************************************/
+/*****************************************************************************
+ * The function computes a hmac over a file with a given name. An array of 
+ * unsigned chars for the result has to be allocated with a size of HMAC_LEN.
+ *****************************************************************************/
 
 bool sh_gc_compute_hmac(const char *filename, unsigned char *hmac)
 {
@@ -251,13 +264,12 @@ CLEANUP:
 	return result;
 }
 
-/***************************************************************************
- * The function checks the hmacs of a file. It is assumed that the first
- * bytes of the file represent a hmac, which was computed over the last part
- * of the file.
- * The function reads the hmacs from the file start and it computes a hmac
- * over the last part of the file. Then the two hmacs are compared.
- **************************************************************************/
+/******************************************************************************
+ * The function checks the hmacs of a file. It is assumed that the first bytes 
+ * of the file represent a hmac, which was computed over the last part of the 
+ * file. The function reads the hmacs from the file start and it computes a 
+ * hmac over the last part of the file. Then the two hmacs are compared.
+ *****************************************************************************/
 
 static bool check_hmacs_of_a_file(FILE *file)
 {
@@ -308,12 +320,12 @@ static bool check_hmacs_of_a_file(FILE *file)
 	return true;
 }
 
-/***************************************************************************
- * The function computes a hmac over the encrypted part of the file. The
- * file starts with the hmac (with size HMAC_LEN) followed by the
- * initialization vector (with size CIPHER_BLOCK_LEN). The rest of the file
- * is the encrypted data.
- **************************************************************************/
+/******************************************************************************
+ * The function computes a hmac over the encrypted part of the file. The file 
+ * starts with the hmac (with size HMAC_LEN) followed by the initialization 
+ * vector (with size CIPHER_BLOCK_LEN). The rest of the file is the encrypted 
+ * data.
+ *****************************************************************************/
 
 static bool write_hmac_to_file(crypt_ctx *ctx)
 {
@@ -349,11 +361,11 @@ static bool write_hmac_to_file(crypt_ctx *ctx)
 	return true;
 }
 
-/***************************************************************************
- * The function encrypts the buffer and writes the result to the output
- * file. It is assumed that the buffer size is a multiple of the block size
- * of the cipher algorithm.
- **************************************************************************/
+/******************************************************************************
+ * The function encrypts the buffer and writes the result to the output file. 
+ * It is assumed that the buffer size is a multiple of the block size of the 
+ * cipher algorithm.
+ *****************************************************************************/
 
 static bool encrypt_and_write_to_file(crypt_ctx *ctx, char *buffer, const size_t size)
 {
@@ -385,11 +397,11 @@ static bool encrypt_and_write_to_file(crypt_ctx *ctx, char *buffer, const size_t
 	return true;
 }
 
-/***************************************************************************
- * The function writes a string to the buffer. If the total written bytes in
- * the buffer exceeds MAX_LINE, MAX_LINE bytes are encrypted and written to
- * the output file.
- **************************************************************************/
+/******************************************************************************
+ * The function writes a string to the buffer. If the total written bytes in 
+ * the buffer exceeds MAX_LINE, MAX_LINE bytes are encrypted and written to the
+ * output file.
+ *****************************************************************************/
 
 bool sh_gc_write(crypt_ctx *ctx, const char *bytes, const size_t size)
 {
@@ -436,10 +448,10 @@ bool sh_gc_write(crypt_ctx *ctx, const char *bytes, const size_t size)
 	return true;
 }
 
-/***************************************************************************
- * The function finishes the write process by encrypting the buffer
- * including the padding and computes the hmac over the data.
- **************************************************************************/
+/******************************************************************************
+ * The function finishes the write process by encrypting the buffer including 
+ * the padding and computes the hmac over the data.
+ *****************************************************************************/
 
 bool sh_gc_finish_write(crypt_ctx *ctx)
 {
@@ -484,14 +496,13 @@ bool sh_gc_finish_write(crypt_ctx *ctx)
 	return true;
 }
 
-/***************************************************************************
- * The function reads the next line from the decrypted data. The function
- * returns true if there is a line or false if the whole input was
- * processed.
+/******************************************************************************
+ * The function reads the next line from the decrypted data. The function 
+ * returns true if there is a line or false if the whole input was processed.
  *
- * The function makes no difference between the file endings of: 'data\n\0'
- * and 'data\0'. So the original data cannot be completely restored.
- **************************************************************************/
+ * The function makes no difference between the file endings of: 'data\n\0' and
+ * 'data\0'. So the original data cannot be completely restored.
+ *****************************************************************************/
 
 bool sh_gc_readline(crypt_ctx *ctx, char **line)
 {
@@ -537,11 +548,11 @@ bool sh_gc_readline(crypt_ctx *ctx, char **line)
 	return true;
 }
 
-/***************************************************************************
- * The function decrypts the whole file and stores it in the context buffer.
- * It is assumed that the content is a string and the buffer will be used to
+/******************************************************************************
+ * The function decrypts the whole file and stores it in the context buffer. It 
+ * is assumed that the content is a string and the buffer will be used to 
  * return it line by line.
- **************************************************************************/
+ *****************************************************************************/
 
 bool sh_gc_decrypt_data(crypt_ctx *ctx)
 {
@@ -615,13 +626,13 @@ bool sh_gc_decrypt_data(crypt_ctx *ctx)
 	return true;
 }
 
-/***************************************************************************
+/******************************************************************************
  * The function initializes the encryption. It opens the output file for the
- * encrypted data, create the initialization vector and writes it to the
- * output file. It creates the cipher handle and allocates memory for the
- * buffer. The buffer is used for different purposes in case of encryption
- * and decryption, so the sizes of the buffer differ in the different cases.
- **************************************************************************/
+ * encrypted data, create the initialization vector and writes it to the output
+ * file. It creates the cipher handle and allocates memory for the buffer. The 
+ * buffer is used for different purposes in case of encryption and decryption,
+ * so the sizes of the buffer differ in the different cases.
+ *****************************************************************************/
 
 bool sh_gc_open_encrypt(crypt_ctx *ctx, const char *file_name)
 {
@@ -679,12 +690,12 @@ bool sh_gc_open_encrypt(crypt_ctx *ctx, const char *file_name)
 	return true;
 }
 
-/***************************************************************************
+/******************************************************************************
  * The function initializes the decryption. It opens the input file with the
  * encrypted data and checks the hmac of the file to ensure that it was not
- * manipulated. It reads the initialization vector from the file and creates
- * a cipher handle.
- **************************************************************************/
+ * manipulated. It reads the initialization vector from the file and creates a 
+ * cipher handle.
+ *****************************************************************************/
 
 bool sh_gc_open_decrypt(crypt_ctx *ctx, const char *file_name)
 {
@@ -732,10 +743,10 @@ bool sh_gc_open_decrypt(crypt_ctx *ctx, const char *file_name)
 	return true;
 }
 
-/***************************************************************************
- * The function does a cleanup of the different components of the
- * application. The cleanup has no error handling.
- **************************************************************************/
+/******************************************************************************
+ * The function does a cleanup of the different components of the application.
+ * The cleanup has no error handling.
+ *****************************************************************************/
 
 void sh_gc_close(crypt_ctx *ctx)
 {
