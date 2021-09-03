@@ -1,9 +1,26 @@
-/***************************************************************************
- * sh_generate_keys.c
+/*
+ * MIT License
  *
- *  Created on: Aug 27, 2017
- *      Author: dead-end
- **************************************************************************/
+ * Copyright (c) 2021 dead-end
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 
 #include <stdbool.h>
 #include <errno.h>
@@ -16,10 +33,10 @@
 
 #define BLOCK_SIZE 16
 
-/***************************************************************************
+/******************************************************************************
  * The function writes the content of a c-array with random bytes to a given
  * file. It adds a newline after BLOCK_SIZE bytes.
- **************************************************************************/
+ *****************************************************************************/
 
 static bool print_random_bytes(FILE *file, const size_t num_bytes)
 {
@@ -75,9 +92,9 @@ static bool print_random_bytes(FILE *file, const size_t num_bytes)
 	return true;
 }
 
-/***************************************************************************
+/******************************************************************************
  * The function writes the source file with the two keys.
- **************************************************************************/
+ *****************************************************************************/
 
 static void genereate_keys_file(const char *file_name, const size_t cipher_key_len, const size_t hmac_key_len)
 {
@@ -110,13 +127,15 @@ static void genereate_keys_file(const char *file_name, const size_t cipher_key_l
 	fprintf(file, "unsigned char hmac_key[%zu] = {\n", hmac_key_len);
 	print_random_bytes(file, hmac_key_len);
 	fprintf(file, "};\n");
+
+	fclose(file);
 }
 
-/***************************************************************************
- * The main function triggers the generation process of the source file with
- * the two keys. It is called with the name of the c file, that should be
+/******************************************************************************
+ * The main function triggers the generation process of the source file with 
+ * the two keys. It is called with the name of the c file, that should be 
  * created.
- **************************************************************************/
+ *****************************************************************************/
 
 int main(const int argc, const char *argv[])
 {
