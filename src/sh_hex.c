@@ -1,23 +1,39 @@
 /*
- * sh_hex.c
+ * MIT License
  *
- *  Created on: Oct 9, 2017
- *      Author: dead-end
+ * Copyright (c) 2021 dead-end
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include <stdio.h>
 
 #include "sh_commons.h"
 
-static const char hex_map[] = "0123456789abcdef";
+static const char HEX_MAP[] = "0123456789abcdef";
 
-/***************************************************************************
+/******************************************************************************
  * The function is called with a hex char "0123456789abcdef" and sets the
  * parameter u_char to a value 0 ... 16.
- **************************************************************************/
+ *****************************************************************************/
 
 static bool hex_char_to_u_char(const char hex_char, unsigned char *u_char)
 {
@@ -42,12 +58,12 @@ static bool hex_char_to_u_char(const char hex_char, unsigned char *u_char)
 	return false;
 }
 
-/***************************************************************************
- * The function converts a string of hex chars to an array of unsigned
- * chars. The parameter 'array' is used to return the result and has to be
- * provided with sufficient memory. The length can be determined with the
- * macro sh_hex_get_array_len(hex).
- **************************************************************************/
+/******************************************************************************
+ * The function converts a string of hex chars to an array of unsigned chars. 
+ * The parameter 'array' is used to return the result and has to be provided 
+ * with sufficient memory. The length can be determined with the macro 
+ * sh_hex_get_array_len(hex).
+ *****************************************************************************/
 
 bool sh_hex_hex_to_array(const char *hex, unsigned char *array, size_t array_len)
 {
@@ -84,12 +100,12 @@ bool sh_hex_hex_to_array(const char *hex, unsigned char *array, size_t array_len
 	return true;
 }
 
-/***************************************************************************
- * The function converts an array of unsigned char to a string of hex chars.
- * The parameter 'hex' is used to return the result. It has to be allocated
+/******************************************************************************
+ * The function converts an array of unsigned char to a string of hex chars. 
+ * The parameter 'hex' is used to return the result. It has to be allocated 
  * with sufficient memory. The length can be determined with the macro
  * sh_hex_get_hex_len(array).
- **************************************************************************/
+ *****************************************************************************/
 
 void sh_hex_array_to_hex(const unsigned char *array, const size_t array_len, char *hex)
 {
@@ -102,12 +118,12 @@ void sh_hex_array_to_hex(const unsigned char *array, const size_t array_len, cha
 		//
 		// char for the upper 4 bits
 		//
-		*ptr++ = hex_map[array[i] >> 4];
+		*ptr++ = HEX_MAP[array[i] >> 4];
 
 		//
 		// char for the lower 4 bits
 		//
-		*ptr++ = hex_map[array[i] & 0x0f];
+		*ptr++ = HEX_MAP[array[i] & 0x0f];
 	}
 
 	//
