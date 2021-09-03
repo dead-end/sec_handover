@@ -58,6 +58,18 @@
     fprintf(stderr, "ERROR %s:%d:%s() " fmt "\n", __FILE__, __LINE__, __func__);
 
 /******************************************************************************
+ * Definition of the exit logging macro, which terminates the program.
+ *****************************************************************************/
+
+#define log_exit(fmt, ...)                                                                      \
+    fprintf(stderr, "FATAL %s:%d:%s() " fmt "\n", __FILE__, __LINE__, __func__, ##__VA_ARGS__); \
+    exit(EXIT_FAILURE)
+
+#define log_exit_str(fmt)                                                        \
+    fprintf(stderr, "FATAL %s:%d:%s() " fmt "\n", __FILE__, __LINE__, __func__); \
+    exit(EXIT_FAILURE)
+
+/******************************************************************************
  * default buffer size.
  *****************************************************************************/
 
