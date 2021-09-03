@@ -638,7 +638,7 @@ bool get_program_path(char *buffer, const size_t size)
  * 
  * TODO: currently not used.
  **************************************************************************/
-
+// UNUSED
 bool get_userid_from_name(const char *name, uid_t *uid)
 {
 
