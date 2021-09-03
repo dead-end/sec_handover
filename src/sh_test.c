@@ -1,9 +1,26 @@
-/***************************************************************************
- * test.c
+/*
+ * MIT License
  *
- *  Created on: Sep 11, 2017
- *      Author: dead-end
- **************************************************************************/
+ * Copyright (c) 2021 dead-end
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 
 #include <sh_generated_keys.h>
 #include <stdlib.h>
@@ -24,10 +41,10 @@
 #define TEST_2_SRC "resources/start_data.cfg.src"
 #define TEST_2_ENC "resources/start_data.cfg.enc"
 
-/***************************************************************************
- * The function simply compares two strings. Both strings are not allowed to
- * be NULL.
- **************************************************************************/
+/******************************************************************************
+ * The function simply compares two strings. Both strings are not allowed to be
+ * NULL.
+ *****************************************************************************/
 
 static void check_str(const char *value1, const char *value2, const char *name)
 {
@@ -53,10 +70,9 @@ static void check_str(const char *value1, const char *value2, const char *name)
 	printf("OK - checking: %s: value: %s\n", name, value1);
 }
 
-/***************************************************************************
- * The first test encrypts and decrypts a file. The result has to be the
- * same.
- **************************************************************************/
+/******************************************************************************
+ * The first test encrypts and decrypts a file. The result has to be the same.
+ *****************************************************************************/
 
 static void test1()
 {
@@ -109,10 +125,10 @@ static void test1()
 	printf("Finished test: 1\n");
 }
 
-/***************************************************************************
- * The function tests the creation of a hex string from a byte array. The
+/******************************************************************************
+ * The function tests the creation of a hex string from a byte array. The 
  * hmac_key is used as an input array.
- **************************************************************************/
+ *****************************************************************************/
 
 static void test2()
 {
@@ -147,10 +163,10 @@ static void test2()
 	printf("Finished test: 2\n");
 }
 
-/***************************************************************************
+/******************************************************************************
  * The function gets the next token and check if the result has the expected
  * value.
- **************************************************************************/
+ *****************************************************************************/
 
 static void check_next_token(s_token *token, const char *expected)
 {
@@ -173,10 +189,10 @@ static void check_next_token(s_token *token, const char *expected)
 	}
 }
 
-/***************************************************************************
- * The function parses a command string and compares the result with the
+/******************************************************************************
+ * The function parses a command string and compares the result with the 
  * expected values.
- **************************************************************************/
+ *****************************************************************************/
 
 static void check_parse_cmd_argv(char *str, const char *expected[], const int size)
 {
@@ -200,9 +216,9 @@ static void check_parse_cmd_argv(char *str, const char *expected[], const int si
 	free_cmd_argv(argv);
 }
 
-/***************************************************************************
+/******************************************************************************
  * The function contains several tests for parsing a string with a command.
- **************************************************************************/
+ *****************************************************************************/
 
 static void test3()
 {
@@ -259,10 +275,10 @@ static void test3()
 	printf("Finished test: 3\n");
 }
 
-/***************************************************************************
- * Function check whether the function str_token is able to extract tokens
- * from an input string, separated by a delimiter character.
- **************************************************************************/
+/******************************************************************************
+ * Function check whether the function str_token is able to extract tokens from
+ * an input string, separated by a delimiter character.
+ *****************************************************************************/
 
 static void test4()
 {
@@ -295,12 +311,12 @@ static void test4()
 	printf("Finished test: 4\n");
 }
 
-/***************************************************************************
- * The method reads the unencrypted start data from a file and writes the
- * data enrypted to an other file. Then the file is decrypted and the start
- * data extracted. The last step is to compare the inital start data with
- * the last start data.
- **************************************************************************/
+/******************************************************************************
+ * The method reads the unencrypted start data from a file and writes the data 
+ * enrypted to an other file. Then the file is decrypted and the start data 
+ * extracted. The last step is to compare the inital start data with the last 
+ * start data.
+ *****************************************************************************/
 
 static void test5()
 {
@@ -423,9 +439,9 @@ static void test5()
 	printf("Finished test: 5\n");
 }
 
-/***************************************************************************
+/******************************************************************************
  * The main function simply triggers the tests.
- **************************************************************************/
+ *****************************************************************************/
 
 int main()
 {
