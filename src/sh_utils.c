@@ -1,30 +1,47 @@
-/***************************************************************************
- * utils.c
+/*
+ * MIT License
  *
- *  Created on: Aug 14, 2017
- *      Author: dead-end
- **************************************************************************/
+ * Copyright (c) 2021 dead-end
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 
 #include <errno.h>
 #include <stdbool.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/stat.h>
 #include <ctype.h>
 #include <unistd.h>
-#include <sys/types.h>
 #include <pwd.h>
+
+#include <sys/stat.h>
+#include <sys/types.h>
 
 #include "sh_commons.h"
 #include "sh_utils.h"
 
 #ifdef DEBUG
 
-/***************************************************************************
- * The method prints a buffer with a give size. The buffer can end with
- * padding chars, which are not necessary printable.
- **************************************************************************/
+/******************************************************************************
+ * The method prints a buffer with a give size. The buffer can end with padding 
+ * chars, which are not necessary printable.
+ *****************************************************************************/
 
 void debug_print_buffer(const char *msg, const char *buffer, const int buffer_size)
 {
@@ -42,9 +59,9 @@ void debug_print_buffer(const char *msg, const char *buffer, const int buffer_si
 	printf(">>>> START >>>>\n%s\n<<<< END <<<<\n", tmp_buffer);
 }
 
-/***************************************************************************
+/******************************************************************************
  * The function prints an array of 'unsigned char' with a block size.
- **************************************************************************/
+ *****************************************************************************/
 
 void debug_print_block(const char *msg, const unsigned char *block, const int block_size, const int per_line)
 {
@@ -63,10 +80,10 @@ void debug_print_block(const char *msg, const unsigned char *block, const int bl
 
 #endif
 
-/***************************************************************************
+/******************************************************************************
  * The function removes leading and tailing spaces. The process changes the
  * argument string.
- **************************************************************************/
+ *****************************************************************************/
 
 char *trim(char *str)
 {
@@ -90,10 +107,10 @@ char *trim(char *str)
 	return ptr;
 }
 
-/***************************************************************************
- * The method writes an array with a given size to a file. On success true
- * is returned. On failure an error message is print and false is returned.
- **************************************************************************/
+/******************************************************************************
+ * The method writes an array with a given size to a file. On success true is 
+ * returned. On failure an error message is print and false is returned.
+ *****************************************************************************/
 
 bool write_array(FILE *file, const void *array, const size_t array_len)
 {
@@ -119,11 +136,11 @@ bool write_array(FILE *file, const void *array, const size_t array_len)
 	return true;
 }
 
-/***************************************************************************
- * The method writes an array with a given size to a given position in a
- * file. On success true is returned. On failure an error message is print
- * and false is returned.
- **************************************************************************/
+/******************************************************************************
+ * The method writes an array with a given size to a given position in a file. 
+ * On success true is returned. On failure an error message is print and false 
+ * is returned.
+ *****************************************************************************/
 
 bool write_array_to(FILE *file, const void *array, const size_t array_len, const long offset, const int whence)
 {
@@ -137,10 +154,10 @@ bool write_array_to(FILE *file, const void *array, const size_t array_len, const
 	return write_array(file, array, array_len);
 }
 
-/***************************************************************************
- * The method reads an array with a given size from a file. On success true
- * is returned. On failure an error message is print and false is returned.
- **************************************************************************/
+/******************************************************************************
+ * The method reads an array with a given size from a file. On success true is 
+ * returned. On failure an error message is print and false is returned.
+ *****************************************************************************/
 
 bool read_array_complete(FILE *file, void *array, const size_t array_len)
 {
@@ -166,11 +183,11 @@ bool read_array_complete(FILE *file, void *array, const size_t array_len)
 	return true;
 }
 
-/***************************************************************************
- * The method reads an array with a given size, from a given position in a
- * file. On success true is returned. On failure an error message is print
- * and false is returned.
- **************************************************************************/
+/******************************************************************************
+ * The method reads an array with a given size, from a given position in a 
+ * file. On success true is returned. On failure an error message is print and 
+ * false is returned.
+ *****************************************************************************/
 
 bool read_array_complete_from(FILE *file, void *array, const size_t array_len, const long offset, const int whence)
 {
@@ -184,9 +201,9 @@ bool read_array_complete_from(FILE *file, void *array, const size_t array_len, c
 	return read_array_complete(file, array, array_len);
 }
 
-/***************************************************************************
+/******************************************************************************
  * The function closes a file stream if necessary.
- **************************************************************************/
+ *****************************************************************************/
 
 void fclose_silent(FILE *file, DEBUG_PARAM const char *file_name)
 {
@@ -197,9 +214,9 @@ void fclose_silent(FILE *file, DEBUG_PARAM const char *file_name)
 	}
 }
 
-/***************************************************************************
+/******************************************************************************
  * The function returns the size of a file from a file descriptor.
- **************************************************************************/
+ *****************************************************************************/
 
 bool get_file_size(const int fd, size_t *ptr)
 {
@@ -218,10 +235,10 @@ bool get_file_size(const int fd, size_t *ptr)
 	return true;
 }
 
-/***************************************************************************
- * The function test if the path of a file is absolute. It is not ensured
- * that the file exists.
- **************************************************************************/
+/******************************************************************************
+ * The function test if the path of a file is absolute. It is not ensured that 
+ * the file exists.
+ *****************************************************************************/
 
 bool is_path_absolute(const char *path)
 {
@@ -244,10 +261,10 @@ bool is_path_absolute(const char *path)
 	return true;
 }
 
-/***************************************************************************
+/******************************************************************************
  * The function test if two files are identical. This is used to check if a
  * file is the same after encryption and decryption.
- **************************************************************************/
+ *****************************************************************************/
 
 bool compare_files(const char *file_name_1, const char *file_name_2)
 {
@@ -317,10 +334,9 @@ CLEANUP:
 	return result;
 }
 
-/***************************************************************************
- * The function counts the tokens, delimited by spaces and returns the
- * result.
- **************************************************************************/
+/******************************************************************************
+ * The function counts the tokens, delimited by spaces and returns the result.
+ *****************************************************************************/
 
 int count_tokens(char *str)
 {
@@ -360,16 +376,16 @@ int count_tokens(char *str)
 	return count;
 }
 
-/***************************************************************************
- * The function is used to parses a line. It returns tokens which are
- * delimited by spaces. The only parameter is an instance of the struct
- * s_token, with a pointer to the current search position and a pointer to
- * the result. If the function does not find a token, the both pointers are
- * set to NULL. If a token is found it is copied to a newly allocated array
- * and has to be freed by the caller.
+/******************************************************************************
+ * The function is used to parses a line. It returns tokens which are delimited 
+ * by spaces. The only parameter is an instance of the struct s_token, with a 
+ * pointer to the current search position and a pointer to the result. If the 
+ * function does not find a token, the both pointers are set to NULL. If a 
+ * token is found it is copied to a newly allocated array and has to be freed 
+ * by the caller.
  *
  * The function returns false if an error occurs and true otherwise.
- **************************************************************************/
+ *****************************************************************************/
 
 bool next_token(s_token *token)
 {
@@ -435,10 +451,10 @@ bool next_token(s_token *token)
 	return true;
 }
 
-/***************************************************************************
- * The function frees a argv, which is a NULL terminated array of strings.
- * It is used as an argument to a execvp call.
- **************************************************************************/
+/******************************************************************************
+ * The function frees a argv, which is a NULL terminated array of strings. It 
+ * is used as an argument to a execvp call.
+ *****************************************************************************/
 
 void free_cmd_argv(char **argv)
 {
@@ -458,11 +474,11 @@ void free_cmd_argv(char **argv)
 	free(argv);
 }
 
-/***************************************************************************
- * The function parses a string which is a command. A NULL terminated array
- * of strings is created with the result an returned.
- * If an error occurred the method returns NULL.
- **************************************************************************/
+/******************************************************************************
+ * The function parses a string which is a command. A NULL terminated array of 
+ * strings is created with the result an returned. If an error occurred the 
+ * method returns NULL.
+ *****************************************************************************/
 
 char **parse_cmd_argv(char *str)
 {
@@ -541,16 +557,16 @@ CLEANUP:
 	return argv;
 }
 
-/***************************************************************************
+/******************************************************************************
  * The method is used to split a string with a delimiter char. The string is
  * modified. The found delimiters are replaced with '\0'. The pointer to the
- * string is set to the next char after the found delimiter, so the method
- * can be called until the end of the string is reached.
+ * string is set to the next char after the found delimiter, so the method can 
+ * be called until the end of the string is reached.
  *
  * char str[] = "test string";
  * char *word, *ptr = str;
  * while((word = str_token(&ptr, ' ')) != NULL) {...}
- **************************************************************************/
+ *****************************************************************************/
 
 char *str_token(char **ptr, const char c)
 {
@@ -602,10 +618,10 @@ char *str_token(char **ptr, const char c)
 	return result;
 }
 
-/***************************************************************************
- * The function reads the program path from the proc file system. The path
- * can be used to see if the binaries are manipulated.
- **************************************************************************/
+/******************************************************************************
+ * The function reads the program path from the proc file system. The path can 
+ * be used to see if the binaries are manipulated.
+ *****************************************************************************/
 
 bool get_program_path(char *buffer, const size_t size)
 {
@@ -633,12 +649,12 @@ bool get_program_path(char *buffer, const size_t size)
 	return true;
 }
 
-/***************************************************************************
+/******************************************************************************
  * The function returns a uid for a user represented by its name.
  * 
  * TODO: currently not used.
- **************************************************************************/
-// UNUSED
+ *****************************************************************************/
+
 bool get_userid_from_name(const char *name, uid_t *uid)
 {
 
