@@ -35,7 +35,7 @@ RUN cd /tmp && \
 	bunzip2 libgpg-error-1.42.tar.bz2 && \
 	tar xvf libgpg-error-1.42.tar && \
 	cd /tmp/libgpg-error-1.42 && \
-	./configure --prefix=/tmp/local && \
+	./configure --prefix=/tmp/local --enable-static && \
 	make && \
 	make install
 
@@ -48,7 +48,7 @@ RUN cd /tmp && \
 	bunzip2 libgcrypt-1.8.8.tar.bz2 && \
 	tar xvf libgcrypt-1.8.8.tar && \
 	cd /tmp/libgcrypt-1.8.8 && \
-	./configure --prefix=/tmp/local --with-libgpg-error-prefix=/tmp/local && \
+	./configure --prefix=/tmp/local --with-libgpg-error-prefix=/tmp/local --enable-static && \
 	make && \
 	make install
 
