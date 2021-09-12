@@ -59,7 +59,7 @@ endif
 # We want all hints for bugs and errors.
 ############################################################################
 
-OPTION_FLAGS = -Wextra -Wall -Werror -Wpedantic
+OPTION_FLAGS += -Wextra -Wall -Werror -Wpedantic
 
 ############################################################################
 # Global definition of the POSIX standard. It does not make sence to define
